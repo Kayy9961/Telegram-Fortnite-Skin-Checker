@@ -18,6 +18,7 @@ A Fortnite Skin Checker for Telegram written in Python.
 - Generates image of all skins on Fortnite account
 - Check V-Bucks & Rank
 - Directly Launch Fortnite from an account
+- Last game
 
 ### Installation:
 
@@ -75,3 +76,4 @@ On MacOS/Linux:
 ```bash
 python3 bot.py
 ```
+Background squares updated by https://github.com/stormzyxx
