@@ -69,7 +69,7 @@ def mask_account_id(account_id):
     return account_id
 
 SWITCH_TOKEN = "OThmN2U0MmMyZTNhNGY4NmE3NGViNDNmYmI0MWVkMzk6MGEyNDQ5YTItMDAxYS00NTFlLWFmZWMtM2U4MTI5MDFjNGQ3"
-IOS_TOKEN = "MzQ0NmNkNzI2OTRjNGE0NDg1ZDgxYjc3YWRiYjIxNDE6OTIwOWQ0YTVlMjVhNDU3ZmI5YjA3NDg5ZDMxM2I0MWE="
+IOS_TOKEN = "M2Y2OWU1NmM3NjQ5NDkyYzhjYzI5ZjFhZjA4YThhMTI6YjUxZWU5Y2IxMjIzNGY1MGE2OWVmYTY3ZWY1MzgxMmU="
 idpattern = re.compile(r"athena(.*?):(.*?)_(.*?)")
 
 current_dir = os.path.dirname(__file__)
@@ -82,7 +82,7 @@ rarity_backgrounds = {
     "Mythic": os.path.join(current_dir, "cuadrados", "mitico.png"),
     "Icon Series": os.path.join(current_dir, "cuadrados", "idolo.png"),
     "DARK SERIES": os.path.join(current_dir, "cuadrados", "dark.png"),
-    "Star Wars Series": os.path.join(current_dir, "cuadrados", "star wars.png"),
+    "Star Wars Series": os.path.join(current_dir, "cuadrados", "starwars.png"),
     "MARVEL SERIES": os.path.join(current_dir, "cuadrados", "marvel.png"),
     "DC SERIES": os.path.join(current_dir, "cuadrados", "dc.png"),
     "Gaming Legends Series": os.path.join(current_dir, "cuadrados", "serie.png"),
