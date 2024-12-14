@@ -11,7 +11,8 @@ A Fortnite Skin Checker for Telegram written in Python.
 
 ![combined_cosmetics - 2024-12-14T190223 894](https://github.com/user-attachments/assets/5a247159-3d3b-457a-84b4-407eb8de90d9)
 
-![image](https://github.com/user-attachments/assets/1ef4238d-d237-40e9-9c5d-0ca8b11b5beb)
+![image](https://github.com/user-attachments/assets/1627ce79-2538-44d1-8d4d-72a3f0659df8)
+
 
 ## Features:
 
