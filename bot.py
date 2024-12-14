@@ -406,7 +406,7 @@ async def get_cosmetic_info(cosmetic_id: str, session: aiohttp.ClientSession) ->
         return {"id": cosmetic_id, "rarity": rarity, "name": name,}
  
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
-FONT_PATH = os.path.join(directorio_actual, "fonts", "Burbank Big Regular Bold.otf") 
+FONT_PATH = os.path.join(directorio_actual, "fonts", "font.ttf") 
 
 def combine_with_background(foreground: Image.Image, background: Image.Image, name: str, rarity: str) -> Image.Image:
     logger.info(f"Combining image {name} with background")
