@@ -52,12 +52,12 @@ Para ejecutar el Verificador de Skins de Fortnite en Telegram, sigue estos pasos
 
 1. Configura tu bot de Telegram obteniendo un token de [BotFather](https://t.me/botfather).
 
-2. [Configura el bot con tu token:](https://github.com/Kayy9961/Telegram-Fortnite-Skin-Checker-Source-Code/blob/b35f26bea48358a630a76cad6864de60cb7ceb3b/bot.py#L1257)
+2. [Configura la bot con tu token:](https://github.com/Kayy9961/Telegram-Fortnite-Skin-Checker/blob/28598faa985b2e93563a65b8a090d2c2931669f8/bot.py#L1476)
 
 ```python
  TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
 ```
-3. [Pon URL de tu Weebhook de discord:](https://github.com/Kayy9961/Telegram-Fortnite-Skin-Checker-Source-Code/blob/b35f26bea48358a630a76cad6864de60cb7ceb3b/bot.py#L1106)
+3. [Coloque la URL de su Webhook de Discord:](https://github.com/Kayy9961/Telegram-Fortnite-Skin-Checker/blob/28598faa985b2e93563a65b8a090d2c2931669f8/bot.py#L1260)
 
 ```python
  URL Weebhook = "YOU WEBHOOK"
