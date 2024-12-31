@@ -34,9 +34,11 @@ logger = logging.getLogger(__name__)
 
 os.system("title Code Created By Kayy / discord.gg/KayyShop")
 
+pending_link_changes = set()
 
 Image.MAX_IMAGE_PIXELS = None
 
+pending_logo_changes = set()
 
 VERIFICATION_COUNT_FILE = "verification_countstele.json"
 
@@ -54,7 +56,7 @@ def load_user_config(telegram_user_id: int) -> dict:
         with open(config_path, "r", encoding="utf-8") as f:
             return json.load(f)
     else:
-        return {"rarity_version": "v2"}
+        return {"rarity_version": "v1"}
 
 def save_user_config(telegram_user_id: int, config: dict):
     config_path = get_user_config_path(telegram_user_id)
@@ -197,30 +199,37 @@ sub_order = {
 
 mythic_ids = [
     "cid_017_athena_commando_m", "cid_028_athena_commando_f", "eid_tidy",
-    "cid_032_athena_commando_m_medieval", "cid_033_athena_commando_f_medieval", "cid_035_athena_commando_m_medieval", "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_030_athena_commando_m_halloween", "cid_029_athena_commando_f_halloween",
-    "cid_052_athena_commando_f_psblue", "cid_095_athena_commando_m_founder", "cid_096_athena_commando_f_founder",
-    "cid_113_athena_commando_m_blueace", "cid_114_athena_commando_f_tacticalwoodland", "cid_175_athena_commando_m_celestial", "cid_089_athena_commando_m_retrogrey", "cid_085_athena_commando_m_twitch",
-    "cid_174_athena_commando_f_carbidewhite", "cid_183_athena_commando_m_modernmilitaryred", "cid_207_athena_commando_m_footballdudea",
+    "cid_032_athena_commando_m_medieval", "cid_033_athena_commando_f_medieval", "cid_035_athena_commando_m_medieval",
+    "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_030_athena_commando_m_halloween", "cid_029_athena_commando_f_halloween",
+    "cid_052_athena_commando_f_psblue", "cid_095_athena_commando_m_founder", "cid_096_athena_commando_f_founder", "cid_138_athena_commando_m_psburnou", 
+    "cid_260_athena_commando_f_streetops", "cid_315_athena_commando_m_teriyakifish", "cid_399_athena_commando_f_ashtonboardwalk", "cid_619_athena_commando_f_techllama",
+    "cid_a_024_athena_commando_f_skirmish_qw2bq", "cid_a_101_athena_commando_m_tacticalwoodlandblue", "cid_a_215_athena_commando_f_sunrisecastle_48tiz",
+    "cid_a_216_athena_commando_m_sunrisepalace_bbqy0", "pickaxe_id_stw004_tier_5", "pickaxe_id_stw005_tier_6", "cid_925_athena_commando_f_tapdance",
+    "bid_072_vikingmale", "cid_138_athena_commando_m_psburnout", "pickaxe_id_stw001_tier_1", "pickaxe_id_stw002_tier_3", "pickaxe_id_stw003_tier_4",
+    "pickaxe_id_stw007_basic", "pickaxe_id_153_roseleader", "pickaxe_id_461_skullbritecube", "glider_id_211_wildcatblue", "glider_id_206_donut"
+    "cid_113_athena_commando_m_blueace", "cid_114_athena_commando_f_tacticalwoodland", "cid_175_athena_commando_m_celestial", "cid_089_athena_commando_m_retrogrey",
+    "cid_174_athena_commando_f_carbidewhite", "cid_183_athena_commando_m_modernmilitaryred", "cid_207_athena_commando_m_footballdudea", "eid_worm",
     "cid_208_athena_commando_m_footballdudeb", "cid_209_athena_commando_m_footballdudec", "cid_210_athena_commando_f_footballgirla",
     "cid_211_athena_commando_f_footballgirlb", "cid_212_athena_commando_f_footballgirlc", "cid_238_athena_commando_f_footballgirld", 
-    "cid_239_athena_commando_m_footballduded", "cid_240_athena_commando_f_plague", "cid_313_athena_commando_m_kpopfashion", "cid_082_athena_commando_m_scavenger", "cid_090_athena_commando_m_tactical",
-    "cid_342_athena_commando_m_streetracermetallic", "cid_434_athena_commando_f_stealthhonor", "cid_441_athena_commando_f_cyberscavengerblue", "cid_479_athena_commando_f_davinci", "cid_657_athena_commando_f_techopsblue",
+    "cid_239_athena_commando_m_footballduded", "cid_240_athena_commando_f_plague", "cid_313_athena_commando_m_kpopfashion", "cid_082_athena_commando_m_scavenger",
+     "cid_090_athena_commando_m_tactical", "cid_657_athena_commando_f_techopsblue", "cid_371_athena_commando_m_speedymidnight", "cid_085_athena_commando_m_twitch",
+    "cid_342_athena_commando_m_streetracermetallic", "cid_434_athena_commando_f_stealthhonor", "cid_441_athena_commando_f_cyberscavengerblue", "cid_479_athena_commando_f_davinci",
     "cid_478_athena_commando_f_worldcup", "cid_515_athena_commando_m_barbequelarry", "cid_516_athena_commando_m_blackwidowrogue", "cid_657_athena_commando_f_techOpsBlue",
     "cid_619_athena_commando_f_techllama", "cid_660_athena_commando_f_bandageninjablue", "cid_703_athena_commando_m_cyclone", "cid_084_athena_commando_m_assassin", "cid_083_athena_commando_f_tactical",
     "cid_761_athena_commando_m_cyclonespace", "cid_783_athena_commando_m_aquajacket", "cid_964_athena_commando_m_historian_869bc", "cid_084_athena_commando_m_assassin", "cid_039_athena_commando_f_disco",
     "eid_ashtonboardwalk", "eid_ashtonsaltlake", "eid_bendy", "eid_bollywood", "eid_chicken", "cid_757_athena_commando_f_wildcat",  "cid_080_athena_commando_m_space",
     "eid_crackshotclock", "eid_dab", "eid_fireworksspin", "eid_fresh", "eid_griddles", "eid_hiphop01", "eid_iceking", "eid_kpopdance03",
-    "eid_macaroon_45lhe", "eid_ridethepony_athena", "eid_robot", "eid_rockguitar", "eid_solartheory", "eid_taketheL", "eid_tapshuffle", "cid_386_athena_commando_m_streetopsstealth", "cid_371_athena_commando_m_speedymidnight",
+    "eid_macaroon_45lhe", "eid_ridethepony_athena", "eid_robot", "eid_rockguitar", "eid_solartheory", "eid_taketheL", "eid_tapshuffle", "cid_386_athena_commando_m_streetopsstealth",
     "eid_torchsnuffer", "eid_trophycelebrationfncs", "eid_trophycelebration", "eid_twistdaytona", "eid_zest_q1k5v", "founderumbrella",
     "founderglider", "glider_id_001", "glider_id_002_medieval", "glider_id_003_district", "glider_id_004_disco", "glider_id_014_dragon",
     "glider_id_090_celestial", "glider_id_176_blackmondaycape_4p79k", "glider_id_206_donut", "umbrella_snowflake", "glider_warthog",
     "glider_voyager", "bid_001_bluesquire", "bid_002_royaleknight", "bid_004_blackknight", "bid_005_raptor", "bid_025_tactical", "eid_electroshuffle", "cid_850_athena_commando_f_skullbritecube",
     "bid_024_space", "bid_027_scavenger", "bid_029_retrogrey", "bid_030_tacticalrogue", "bid_055_psburnout", "bid_072_vikingmale",
-    "bid_103_clawed", "bid_102_buckles", "bid_138_celestial", "bid_468_cyclone", "bid_520_cycloneuniverse", "halloweenscythe",
+    "bid_103_clawed", "bid_102_buckles", "bid_138_celestial", "bid_468_cyclone", "bid_520_cycloneuniverse", "halloweenscythe", "eid_floss",
     "pickaxe_id_013_teslacoil", "pickaxe_id_015_holidaycandycane", "pickaxe_id_021_megalodon", "pickaxe_id_019_heart", "cid_116_athena_commando_m_carbideblack",
-    "pickaxe_id_029_assassin", "pickaxe_id_077_carbidewhite", "pickaxe_id_088_psburnout", "pickaxe_id_116_celestial",
-    "pickaxe_id_294_candycane", "pickaxe_id_359_cyclonemale", "pickaxe_id_376_fncs", "pickaxe_id_508_historianmale_6bqsw", "pickaxe_id_011_medieval", "eid_takethel", "eid_floss",
-    "pickaxe_id_804_fncss20male", "pickaxe_id_stw007_basic", "pickaxe_lockjaw"
+    "pickaxe_id_029_assassin", "pickaxe_id_077_carbidewhite", "pickaxe_id_088_psburnout", "pickaxe_id_116_celestial", "pickaxe_id_011_medieval", "eid_takethel",
+    "pickaxe_id_294_candycane", "pickaxe_id_359_cyclonemale", "pickaxe_id_376_fncs", "pickaxe_id_508_historianmale_6bqsw",
+    "pickaxe_id_804_fncss20male", "pickaxe_id_stw007_basic","cid_259_athena_commando_m_streetops", "pickaxe_lockjaw"
 ]
 
 converted_mythic_ids = []
@@ -550,7 +559,7 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
     logger.info(f"Combined image {name} with background successfully")
     return bg
 
-def combine_images(images, username: str, item_count: int, logo_filename="logo.png", show_fake_text: bool = False):
+def combine_images(images, username: str, item_count: int, logo_filename="logo.png", show_fake_text: bool = False, custom_link: str = "Discord.gg/KayyShop"):
     max_width = 1848
     max_height = 2048
 
@@ -603,7 +612,7 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
 
     text1 = f"Objetos Totales: {item_count}"
     text2 = f"Checkeado Por {username} | {datetime.now().strftime('%d/%m/%y')}"
-    text3 = "Discord.gg/KayyShop"
+    text3 = custom_link
     max_text_width = total_width - (logo_position[0] + logo_width + 10)
     font_size = logo_height // 3
 
@@ -849,6 +858,20 @@ async def cambiar(update: Update, context: CallbackContext):
         parse_mode="HTML"
     )
 
+async def cambiar_logo_command(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    if user_id in pending_logo_changes:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Ya estás en proceso de cambiar tu logo. Por favor, envía la imagen que deseas usar."
+        )
+    else:
+        pending_logo_changes.add(user_id)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Por favor, envía la imagen que quieres usar como logo."
+        )    
+
 async def cambiar_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
@@ -891,11 +914,19 @@ async def createimg(
 
     user_config = load_user_config(telegram_user_id)
     rarity_version = user_config.get("rarity_version", "v2")
+    custom_link = user_config.get("custom_link", "Discord.gg/KayyShop")
 
     if rarity_version == "v1":
         backgrounds_to_use = rarity_backgroundsV1
     else:
         backgrounds_to_use = rarity_backgroundsV2
+
+    user_dir = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
+    logo_path = os.path.join(user_dir, "logo.png")
+    if os.path.exists(logo_path):
+        logo_filename = logo_path
+    else:
+        logo_filename = os.path.join(current_dir, "logo.png")
 
     images = []
     info_list = []
@@ -913,6 +944,10 @@ async def createimg(
                     if 'Mat3' in locker_data['unlocked_styles'].get('cid_029_athena_commando_f_halloween', []):
                         make_mythic = True
                         cosmetic_found['name'] = "OG Ghoul Trooper"
+                    else:
+                        cosmetic_found['name'] = "Ghoul Trooper (NO OG)"
+                if cid_lower in mythic_ids:
+                    make_mythic = True
 
         if cid_lower == 'cid_030_athena_commando_m_halloween':
             if 'Mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
@@ -939,7 +974,7 @@ async def createimg(
                 'mat3': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/pink.png"
             },
             'cid_315_athena_commando_m_teriyakifish': {
-                'Stage3': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/Fishi.png"
+                'stage3': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/Fishi.png"
             },
             'cid_030_athena_commando_m_halloween': {
                 'mat1': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/Skull.png"
@@ -993,14 +1028,21 @@ async def createimg(
                 img for _, img in sorted(
                     zip(info_list, images),
                     key=lambda x: item_order.index(get_cosmetic_type(x[0]["id"])) 
-                                  if get_cosmetic_type(x[0]["id"]) in item_order 
-                                  else len(item_order)
+                              if get_cosmetic_type(x[0]["id"]) in item_order 
+                              else len(item_order)
                 )
             ]
         else:
             sorted_images = images
 
-        combined_image = combine_images(sorted_images, username, len(ids), show_fake_text=show_fake_text)
+        combined_image = combine_images(
+            sorted_images, 
+            username, 
+            len(ids), 
+            logo_filename=logo_filename, 
+            show_fake_text=show_fake_text, 
+            custom_link=custom_link
+        )
         f = io.BytesIO()
         combined_image.save(f, "PNG")
         f.seek(0)
@@ -1009,6 +1051,128 @@ async def createimg(
     else:
         logger.warning("No images to combine, returning None")
         return None
+    
+
+async def handle_logo_upload(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    if user_id not in pending_logo_changes:
+        return 
+
+    if not update.message.photo:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ Por favor, envía una imagen válida."
+        )
+        return
+
+    try:
+        photo = update.message.photo[-1]
+        file = await context.bot.get_file(photo.file_id)
+        user_dir = os.path.join(USER_CONFIG_FOLDER, str(user_id))
+        os.makedirs(user_dir, exist_ok=True)
+        logo_path = os.path.join(user_dir, "logo.png")
+        await file.download_to_drive(logo_path)
+
+        with Image.open(logo_path) as img:
+            img.verify()
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="✅ Logo actualizado exitosamente."
+        )
+    except UnidentifiedImageError:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ El archivo enviado no es una imagen válida. Por favor, intenta nuevamente."
+        )
+        if os.path.exists(logo_path):
+            os.remove(logo_path)
+    except Exception as e:
+        logger.error(f"Error al procesar el logo para el usuario {user_id}: {e}")
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ Ocurrió un error al procesar la imagen. Asegúrate de que sea una imagen válida."
+        )
+    finally:
+        pending_logo_changes.discard(user_id)  
+
+async def resetear_command(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    user_dir = os.path.join(USER_CONFIG_FOLDER, str(user_id))
+    config_path = get_user_config_path(user_id)
+    logo_path = os.path.join(user_dir, "logo.png")
+    default_text = "Discord.gg/KayyShop"
+
+    try:
+        config = load_user_config(user_id)
+
+        config["custom_link"] = default_text
+
+        save_user_config(user_id, config)
+
+        if os.path.exists(logo_path):
+            os.remove(logo_path)
+            logo_message = "Logo personalizado eliminado. Se usará el logo por defecto."
+        else:
+            logo_message = "No tienes un logo personalizado. Se usará el logo por defecto."
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=(
+                "✅ Tus personalizaciones han sido restablecidas a los valores predeterminados.\n\n"
+                f"{logo_message}\n"
+                f"Texto personalizado: `{default_text}`"
+            ),
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logger.error(f"Error al restablecer las personalizaciones para el usuario {user_id}: {e}")
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ Ocurrió un error al restablecer tus personalizaciones. Por favor, intenta nuevamente."
+        )
+
+async def handle_link_upload(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    if user_id not in pending_link_changes:
+        return 
+
+    new_text = update.message.text.strip()
+
+    if not new_text:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ Por favor, proporciona un texto válido."
+        )
+        return
+
+    MAX_TEXT_LENGTH = 32
+    if len(new_text) > MAX_TEXT_LENGTH:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"⚠️ El texto es demasiado largo. Por favor, proporciona un texto de máximo {MAX_TEXT_LENGTH} caracteres."
+        )
+        return
+
+    try:
+        config = load_user_config(user_id)
+        config["custom_link"] = new_text
+        save_user_config(user_id, config)
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="✅ Texto personalizado actualizado exitosamente."
+        )
+    except Exception as e:
+        logger.error(f"Error al actualizar el texto para el usuario {user_id}: {e}")
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="⚠️ Ocurrió un error al actualizar el texto. Por favor, intenta nuevamente."
+        )
+    finally:
+        pending_link_changes.discard(user_id)
+
+
 
 async def launch(update: Update, context: CallbackContext):
     asyncio.create_task(launch_task(update, context))
@@ -1018,126 +1182,58 @@ async def launch_task(update: Update, context: CallbackContext):
         epic_generator = EpicGenerator()
         await epic_generator.start()
         device_code_url, device_code = await epic_generator.create_device_code()
-        await context.bot.send_message(
+        
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔗 Autorizar Cuenta", url=device_code_url)]
+        ])
+        
+        msg = await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Por favor, autoriza tu cuenta visitando el siguiente enlace: {device_code_url}",
+            text="Por favor, autoriza tu cuenta haciendo clic en el siguiente botón:",
+            reply_markup=markup,
             parse_mode="HTML"
         )
-
+        
         user = await epic_generator.wait_for_device_code_completion(device_code)
         exchange_code = await epic_generator.create_exchange_code(user)
-
+        
         path = "C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64"
         launch_command = (
             f"start /d \"{path}\" FortniteLauncher.exe "
             f"-AUTH_LOGIN=unused -AUTH_PASSWORD={exchange_code} -AUTH_TYPE=exchangecode "
             f"-epicapp=Fortnite -epicenv=Prod -EpicPortal -epicuserid={user.account_id}"
         )
-
+        
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=(
                 "Copia y pega el siguiente comando en la ventana de CMD y presiona enter:\n\n"
-                f"{launch_command}"
+                f"<code>{launch_command}</code>"
             ),
             parse_mode="HTML"
         )
+        
     except Exception as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Error al procesar la solicitud: {e}", parse_mode="HTML")
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"⚠️ Error al procesar la solicitud: {e}",
+            parse_mode="HTML"
+        )
+        logger.error(f"Error en launch_task: {e}")
 
-async def fetch_user_info(session, username):
-    apiUrl = f"https://api.proswapper.xyz/external/name/{username}"
-    async with session.get(apiUrl) as response:
-        if response.status == 200:
-            response_body = await response.text()
-            user_info_list = json.loads(response_body)
-            return user_info_list
-        return None
-
-async def fetch_ranks_info(session, account_id):
-    ranksApiUrl = f"https://api.proswapper.xyz/ranks/lookup/id/{account_id}"
-    async with session.get(ranksApiUrl) as response:
-        if response.status == 200:
-            response_body = await response.text()
-            ranks_info = json.loads(response_body)
-            return ranks_info
-        return None
-
-async def userinfo(update: Update, context: CallbackContext):
-    asyncio.create_task(userinfo_task(update, context))
-
-async def userinfo_task(update: Update, context: CallbackContext):
-    try:
-        username = ' '.join(context.args).strip()
-
-        if not username:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="Por favor, proporciona un nombre de usuario. Uso: /userinfo <nombre_de_usuario>",
-                parse_mode="HTML"
-            )
-            return
-
-        async with aiohttp.ClientSession() as session:
-            user_info_list = await fetch_user_info(session, username)
-
-            if not user_info_list:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=f"Error al obtener información para el usuario {username}.",
-                    parse_mode="HTML"
-                )
-                return
-
-            for user_info in user_info_list:
-                account_id = user_info["id"]
-                display_name = user_info.get("displayName", "Desconocido")
-
-                response_text = (
-                    f"<b>Nombre de pantalla:</b> {display_name}\n"
-                    f"<b>Account ID:</b> {account_id}\n"
-                )
-
-                psn_auth = user_info.get("externalAuths", {}).get("psn")
-                if psn_auth:
-                    response_text += (
-                        f"\n<b>Account ID PSN:</b> {psn_auth['externalAuthId']}\n"
-                        f"<b>Nombre en pantalla de PSN:</b> {psn_auth['externalDisplayName']}\n"
-                    )
-
-                nintendo_auth = user_info.get("externalAuths", {}).get("nintendo")
-                if nintendo_auth:
-                    for auth_id in nintendo_auth["authIds"]:
-                        response_text += f"\n<b>Account ID Nintendo:</b> {auth_id['id']}\n"
-
-                ranks_info = await fetch_ranks_info(session, account_id)
-                if ranks_info:
-                    for item in ranks_info:
-                        ranking_type = item.get("rankingType")
-                        current_division_name = item.get("currentDivisionName")
-                        promotion_progress = item.get("promotionProgress")
-
-                        if ranking_type == "ranked-br":
-                            response_text += f"\n<b>Ranked Battle Royale:</b> {current_division_name}"
-                            if promotion_progress:
-                                response_text += f" ({promotion_progress:.0%})"
-                            response_text += "\n"
-
-                        elif ranking_type == "ranked-zb":
-                            response_text += f"\n<b>Ranked Zero Build:</b> {current_division_name}"
-                            if promotion_progress:
-                                response_text += f" ({promotion_progress:.0%})"
-                            response_text += "\n"
-
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=response_text,
-                    parse_mode="HTML"
-                )
-
-    except Exception as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Error: {e}", parse_mode="HTML")
-        print(f"Error in userinfo_task: {e}")
+async def cambiar_link_command(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+    if user_id in pending_link_changes:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Ya estás en proceso de cambiar tu enlace. Por favor, envía el nuevo enlace que deseas usar."
+        )
+    else:
+        pending_link_changes.add(user_id)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Por favor, envía el nuevo enlace que quieres usar."
+        )
 
 async def delete_friends(session: aiohttp.ClientSession, user: EpicUser):
     async with session.get(
@@ -1161,49 +1257,61 @@ async def eliminar_amigos(update: Update, context: CallbackContext):
 
 async def eliminar_amigos_task(update: Update, context: CallbackContext):
     try:
+        logging.info("Iniciando tarea de eliminación de amigos")
         epic_generator = EpicGenerator()
         await epic_generator.start()
         device_code_url, device_code = await epic_generator.create_device_code()
+
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔗 Iniciar Sesión", url=device_code_url)]
+        ])
+
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Por favor, autoriza tu cuenta visitando el siguiente enlace: {device_code_url}",
+            text="Por favor, autoriza tu cuenta haciendo clic en el siguiente botón:",
+            reply_markup=markup,
             parse_mode="HTML"
         )
 
         user = await epic_generator.wait_for_device_code_completion(device_code)
-        
+
         async with aiohttp.ClientSession() as session:
             await delete_friends(session, user)
 
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Todos los amigos han sido eliminados de tu cuenta de Epic Games.",
+            text="✅ Todos los amigos han sido eliminados de tu cuenta de Epic Games.",
             parse_mode="HTML"
         )
     except Exception as e:
+        logging.error(f"Error en eliminar_amigos_task: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Error al procesar la solicitud: {e}",
+            text=f"⚠️ Error al procesar la solicitud: {e}",
             parse_mode="HTML"
         )
 
 async def help_command(update: Update, context: CallbackContext):
-    asyncio.create_task(help_task(update, context))
-
-async def help_task(update: Update, context: CallbackContext):
+    help_text = (
+        "🔑 <b>/login</b> - Iniciar sesión y sacar Checker en tu cuenta de Fortnite.\n"
+        "🆘 <b>/help</b> - Mostrar este mensaje de ayuda.\n"
+        "💡 <b>/Start</b> Mostrar toda la configuración\n"
+        "📘 <b>Comandos Disponibles:</b>\n"
+        "🚀 <b>/launch</b> - Lanzar tu cuenta de Fortnite sin necesidad de correo y contraseña.\n"
+        "🗑️ <b>/eliminar_amigos</b> - Eliminar amigos.\n"
+        "🎨 <b>/cambiar</b> - Cambiar estilo del Checker.\n"
+        "🔧 <b>/cambiar_logo</b> - Cambiar tu logo personalizado.\n"
+        "✏️ <b>/cambiar_link</b> - Cambiar tu texto personalizado (máximo 32 caracteres).\n"
+        "🔄 <b>/resetear</b> - Restablecer tu logo y texto personalizados a los valores predeterminados."
+    )
     try:
-        help_text = (
-            "<b>Comandos Disponibles:</b>\n\n"
-            "/login - Checkea tu cuenta de Fortnite para poder ver todos tus objetos\n\n"
-            "/launch - Inicia tu cuenta de Fortnite sin necesidad de correo y contraseña\n\n"
-            "/eliminar_amigos - Eliminar todos los amigos de la cuenta de Epic Games\n\n"
-            "/userinfo - Consigue Account ID solo con el Nombre de Fortnite\n\n"
-            "/cambiar - Cambia la versión de los fondos (V1 o V2)\n\n"
-            "Próximamente estará más actualizado, ¡disfruta! 🥶"
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=help_text,
+            parse_mode="HTML"
         )
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=help_text, parse_mode="HTML")
     except Exception as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Error al procesar la solicitud: {e}", parse_mode="HTML")
+        logger.error(f"Error al enviar el mensaje de ayuda: {e}")
 
 async def login(update: Update, context: CallbackContext):
     asyncio.create_task(login_task(update, context))
@@ -1257,7 +1365,7 @@ async def login_task(update: Update, context: CallbackContext):
             save_verification_counts(verification_counts)
 
             await send_webhook_message(
-                "EL WEBHOOK DE TU DISCORD",
+                "EL LINK DE TU WEEBHOOK DE DISCORD",
                 f"Usuario de Telegram {telegram_username} ha verificado {verification_counts[telegram_user_id]} veces."
             )
 
@@ -1341,7 +1449,7 @@ async def login_task(update: Update, context: CallbackContext):
                 f"🕒 <b>Última partida jugada</b>: {account_stats['last_played_info']}\n"
             )
             await context.bot.send_message(
-                chat_id=update.effective_chat.id,
+                chat_id=update.effective_chat.id, 
                 text=additional_info_message,
                 parse_mode="HTML"
             )
@@ -1355,7 +1463,8 @@ async def login_task(update: Update, context: CallbackContext):
                 parse_mode="HTML"
             )
             logger.info("Información de temporadas pasadas enviada")
-            username = update.message.from_user.username or update.message.from_user.full_name
+            
+            username = update.effective_user.username or update.effective_user.full_name 
 
             locker_data = {'unlocked_styles': {}}
             athena_data = profile
@@ -1402,7 +1511,7 @@ async def login_task(update: Update, context: CallbackContext):
                     )
                     if image_data:
                         await context.bot.send_photo(
-                            chat_id=update.message.chat_id,
+                            chat_id=update.effective_chat.id,
                             photo=image_data,
                             caption=f"<b>{group}</b>",
                             parse_mode="HTML"
@@ -1430,7 +1539,7 @@ async def login_task(update: Update, context: CallbackContext):
                 )
                 if mythic_image_data:
                     await context.bot.send_photo(
-                        chat_id=update.message.chat_id,
+                        chat_id=update.effective_chat.id,
                         photo=mythic_image_data,
                         caption="<b>Cosas Míticas</b>",
                         parse_mode="HTML"
@@ -1450,7 +1559,7 @@ async def login_task(update: Update, context: CallbackContext):
             )
             if combined_image_data:
                 await context.bot.send_photo(
-                    chat_id=update.message.chat_id,
+                    chat_id=update.effective_chat.id,
                     photo=combined_image_data,
                     caption="<b>Todos los Cósméticos</b>",
                     parse_mode="HTML"
@@ -1471,29 +1580,99 @@ async def login_task(update: Update, context: CallbackContext):
             parse_mode="HTML"
         )
         logger.error(f"Error en login_task: {e}")
+    
+
+async def start_command(update: Update, context: CallbackContext):
+    keyboard = [
+        [InlineKeyboardButton("🔑 Iniciar Sesión", callback_data='cmd_login')],
+        [
+            InlineKeyboardButton("🚀 Lanzar Cuenta", callback_data='cmd_launch'),
+            InlineKeyboardButton("🗑️ Eliminar Amigos", callback_data='cmd_eliminar_amigos')
+        ],
+        [
+            InlineKeyboardButton("🔧 Cambiar Logo", callback_data='cmd_cambiar_logo'),
+            InlineKeyboardButton("✏️ Cambiar Link", callback_data='cmd_cambiar_link')
+        ],
+        [
+            InlineKeyboardButton("🎨 Cambiar Estilo", callback_data='cmd_cambiar'),
+            InlineKeyboardButton("🔄 Resetear Personalizaciones", callback_data='cmd_resetear')
+        ],
+        [
+            InlineKeyboardButton("🆘 Ayuda", callback_data='cmd_help')
+        ]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        "¡Bienvenido! Elige una opción del menú:",
+        reply_markup=reply_markup,
+        parse_mode="HTML"
+    )
+
+async def button_handler(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+    await query.delete_message()
+
+    if data == 'cmd_login':
+        asyncio.create_task(login_task(update, context))
+    elif data == 'cmd_launch':
+        asyncio.create_task(launch_task(update, context))
+    elif data == 'cmd_eliminar_amigos':
+        asyncio.create_task(eliminar_amigos_task(update, context))
+    elif data == 'cmd_cambiar_logo':
+        asyncio.create_task(cambiar_logo_command(update, context))
+    elif data == 'cmd_cambiar_link':
+        asyncio.create_task(cambiar_link_command(update, context))
+    elif data == 'cmd_resetear':
+        asyncio.create_task(resetear_command(update, context))
+    elif data == 'cmd_help':
+        asyncio.create_task(help_command(update, context))
+    elif data == 'cmd_cambiar':
+        asyncio.create_task(cambiar(update, context))
+    else:
+        await query.edit_message_text(text="🛑 Opción no reconocida.")
+        return
+
+    try:
+        await query.edit_message_text(
+        )
+    except Exception as e:
+        logger.error(f"Error al editar el mensaje: {e}")
 
 if __name__ == "__main__":
     TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
     application = ApplicationBuilder().token(TOKEN).build()
 
+    start_handler = CommandHandler('start', start_command)
     help_handler = CommandHandler('help', help_command)
     login_handler = CommandHandler('login', login)
     launch_handler = CommandHandler('launch', launch)
-    userinfo_handler = CommandHandler('userinfo', userinfo)
+    cambiar_logo_handler = CommandHandler('cambiar_logo', cambiar_logo_command)
+    logo_upload_handler = MessageHandler(filters.PHOTO, handle_logo_upload)
     eliminar_amigos_handler = CommandHandler('eliminar_amigos', eliminar_amigos)
-    text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, help_command)
     cambiar_handler = CommandHandler('cambiar', cambiar)
     cambiar_callback_handler = CallbackQueryHandler(cambiar_callback, pattern="^rarity_v")
+    cambiar_link_handler = CommandHandler('cambiar_link', cambiar_link_command)
+    link_upload_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, handle_link_upload)
+    resetear_handler = CommandHandler('resetear', resetear_command)
+    button_handler_registrar = CallbackQueryHandler(button_handler, pattern='^cmd_')
 
-    application.add_handler(help_handler)
-    application.add_handler(login_handler)
-    application.add_handler(launch_handler)
-    application.add_handler(userinfo_handler)
+    application.add_handler(start_handler)
+    application.add_handler(resetear_handler)
+    application.add_handler(cambiar_link_handler)
+    application.add_handler(link_upload_handler)
+    application.add_handler(cambiar_logo_handler)
+    application.add_handler(logo_upload_handler)
     application.add_handler(eliminar_amigos_handler)
-    application.add_handler(text_handler)
-
     application.add_handler(cambiar_handler)
     application.add_handler(cambiar_callback_handler)
+    application.add_handler(login_handler)
+    application.add_handler(launch_handler)
+    application.add_handler(help_handler)
+    application.add_handler(button_handler_registrar)
 
     print("Bot de Telegram iniciado")
     application.run_polling()
