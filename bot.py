@@ -15,7 +15,8 @@ from telegram import (
     Update,
     BotCommand,
     InlineKeyboardMarkup,
-    InlineKeyboardButton
+    InlineKeyboardButton,
+    InputMediaPhoto
 )
 from telegram.ext import (
     ApplicationBuilder,
@@ -25,25 +26,21 @@ from telegram.ext import (
     filters,
     CallbackQueryHandler
 )
-from telegram import InputMediaPhoto
-
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 os.system("title Code Created By Kayy / discord.gg/KayyShop")
 
+webhook_url = None
+
 pending_link_changes = set()
-
-Image.MAX_IMAGE_PIXELS = None
-
 pending_logo_changes = set()
 
 VERIFICATION_COUNT_FILE = "verification_countstele.json"
-
-
 USER_CONFIG_FOLDER = "user_config"
+
+Image.MAX_IMAGE_PIXELS = None
 
 def get_user_config_path(telegram_user_id: int) -> str:
     user_dir = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
@@ -56,13 +53,12 @@ def load_user_config(telegram_user_id: int) -> dict:
         with open(config_path, "r", encoding="utf-8") as f:
             return json.load(f)
     else:
-        return {"rarity_version": "v1"}
+        return {"rarity_version": "v1", "custom_link": "Discord.gg/KayyShop"}
 
 def save_user_config(telegram_user_id: int, config: dict):
     config_path = get_user_config_path(telegram_user_id)
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
-
 
 def load_verification_counts():
     if os.path.exists(VERIFICATION_COUNT_FILE):
@@ -74,12 +70,18 @@ def save_verification_counts(counts):
     with open(VERIFICATION_COUNT_FILE, "w") as f:
         json.dump(counts, f)
 
-async def send_webhook_message(webhook_url: str, message: str):
-    async with aiohttp.ClientSession() as session:
-        webhook_data = {"content": message}
-        async with session.post(webhook_url, json=webhook_data) as resp:
-            if resp.status != 204:
-                print(f"Error sending message to webhook: {resp.status}")
+async def send_webhook_message(message: str):
+    global webhook_url
+    if webhook_url:
+        async with aiohttp.ClientSession() as session:
+            webhook_data = {"content": message}
+            async with session.post(webhook_url, json=webhook_data) as resp:
+                if resp.status != 204:
+                    logger.error(f"Error enviando mensaje al webhook: {resp.status}")
+                else:
+                    logger.info("Mensaje enviado exitosamente al webhook.")
+    else:
+        logger.info("Webhook no está configurado. Se omite el envío del mensaje.")
 
 def bool_to_emoji(value):
     return "✅" if value else "❌"
@@ -175,26 +177,27 @@ sub_order = {
     "cid_029_athena_commando_f_halloween": 3,
     "cid_030_athena_commando_m_halloween": 4,
     "cid_035_athena_commando_m_medieval": 5,
-    "cid_039_athena_commando_f_disco": 6,
-    "cid_033_athena_commando_f_medieval": 7,
-    "cid_032_athena_commando_m_medieval": 8,
-    "cid_084_athena_commando_m_assassin": 9,
-    "cid_095_athena_commando_m_founder": 10,
-    "cid_096_athena_commando_f_founder": 11,
-    "cid_113_athena_commando_m_blueace": 12,
-    "cid_116_athena_commando_m_carbideblack": 13,
-    "cid_175_athena_commando_m_celestial": 14,
-    "cid_183_athena_commando_m_modernmilitaryred": 15,
-    "cid_313_athena_commando_m_kpopfashion": 16,
-    "cid_342_athena_commando_m_streetracermetallic": 17,
-    "cid_371_athena_commando_m_speedymidnight": 18,
-    "cid_434_athena_commando_f_stealthhonor": 19,
-    "cid_441_athena_commando_f_cyberscavengerblue": 20,
-    "cid_479_athena_commando_f_davinci": 21,
-    "cid_515_athena_commando_m_barbequelarry": 22,
-    "cid_516_athena_commando_m_blackwidowrogue": 23,
-    "cid_703_athena_commando_m_cyclone": 24,
-    "cid_npc_athena_commando_m_masterkey": 25,
+    "cid_313_athena_commando_m_kpopfashion": 6,
+    "cid_757_athena_commando_f_wildcat": 7,
+    "cid_039_athena_commando_f_disco": 8,
+    "cid_033_athena_commando_f_medieval": 9,
+    "cid_032_athena_commando_m_medieval": 10,
+    "cid_084_athena_commando_m_assassin": 11,
+    "cid_095_athena_commando_m_founder": 12,
+    "cid_096_athena_commando_f_founder": 13,
+    "cid_113_athena_commando_m_blueace": 14,
+    "cid_116_athena_commando_m_carbideblack": 15,
+    "cid_175_athena_commando_m_celestial": 16,
+    "cid_183_athena_commando_m_modernmilitaryred": 17,
+    "cid_342_athena_commando_m_streetracermetallic": 18,
+    "cid_371_athena_commando_m_speedymidnight": 19,
+    "cid_434_athena_commando_f_stealthhonor": 20,
+    "cid_441_athena_commando_f_cyberscavengerblue": 21,
+    "cid_479_athena_commando_f_davinci": 22,
+    "cid_515_athena_commando_m_barbequelarry": 23,
+    "cid_516_athena_commando_m_blackwidowrogue": 24,
+    "cid_703_athena_commando_m_cyclone": 25,
+    "cid_npc_athena_commando_m_masterkey": 26
 }
 
 mythic_ids = [
@@ -206,10 +209,10 @@ mythic_ids = [
     "cid_a_024_athena_commando_f_skirmish_qw2bq", "cid_a_101_athena_commando_m_tacticalwoodlandblue", "cid_a_215_athena_commando_f_sunrisecastle_48tiz",
     "cid_a_216_athena_commando_m_sunrisepalace_bbqy0", "pickaxe_id_stw004_tier_5", "pickaxe_id_stw005_tier_6", "cid_925_athena_commando_f_tapdance",
     "bid_072_vikingmale", "cid_138_athena_commando_m_psburnout", "pickaxe_id_stw001_tier_1", "pickaxe_id_stw002_tier_3", "pickaxe_id_stw003_tier_4",
-    "pickaxe_id_stw007_basic", "pickaxe_id_153_roseleader", "pickaxe_id_461_skullbritecube", "glider_id_211_wildcatblue", "glider_id_206_donut"
+    "pickaxe_id_stw007_basic", "pickaxe_id_153_roseleader", "pickaxe_id_461_skullbritecube", "glider_id_211_wildcatblue", "glider_id_206_donut",
     "cid_113_athena_commando_m_blueace", "cid_114_athena_commando_f_tacticalwoodland", "cid_175_athena_commando_m_celestial", "cid_089_athena_commando_m_retrogrey",
     "cid_174_athena_commando_f_carbidewhite", "cid_183_athena_commando_m_modernmilitaryred", "cid_207_athena_commando_m_footballdudea", "eid_worm",
-    "cid_208_athena_commando_m_footballdudeb", "cid_209_athena_commando_m_footballdudec", "cid_210_athena_commando_f_footballgirla",
+    "cid_208_athena_commando_m_footballduded", "cid_209_athena_commando_m_footballdudec", "cid_210_athena_commando_f_footballgirla",
     "cid_211_athena_commando_f_footballgirlb", "cid_212_athena_commando_f_footballgirlc", "cid_238_athena_commando_f_footballgirld", 
     "cid_239_athena_commando_m_footballduded", "cid_240_athena_commando_f_plague", "cid_313_athena_commando_m_kpopfashion", "cid_082_athena_commando_m_scavenger",
      "cid_090_athena_commando_m_tactical", "cid_657_athena_commando_f_techopsblue", "cid_371_athena_commando_m_speedymidnight", "cid_085_athena_commando_m_twitch",
@@ -340,8 +343,7 @@ class EpicGenerator:
     async def create_device_auths(self, user: 'EpicUser') -> dict:
         async with self.http.request(
             method="POST",
-            url="https://account-public-service-prod.ol.epicgames.com/"
-                f"account/api/public/account/{user.account_id}/deviceAuth",
+            url="https://account-public-service-prod.ol.epicgames.com/account/api/public/account/{}/deviceAuth".format(user.account_id),
             headers={
                 "Authorization": f"bearer {user.access_token}",
                 "Content-Type": "application/json",
@@ -364,7 +366,7 @@ class EpicGenerator:
 async def get_cosmetic_info(cosmetic_id: str, session: aiohttp.ClientSession) -> dict:
     async with session.get(f"https://fortnite-api.com/v2/cosmetics/br/{cosmetic_id}") as resp:
         if resp.status != 200:
-            return {"id": cosmetic_id, "rarity": "Common", "name":[]}
+            return {"id": cosmetic_id, "rarity": "Common", "name": "Unknown"}
         data = await resp.json()
         rarity = data.get("data", {}).get("rarity", {}).get("displayValue", "Common")
         name = data.get("data", {}).get("name", "Unknown")
@@ -488,16 +490,38 @@ FONT_PATH = os.path.join(directorio_actual, "fonts", "font.ttf")
 def calculate_font_size(name: str, base_size: int = 40, special: bool = False) -> int:
     if special:
         length = len(name)
-        if length <= 5:
+        if length <= 1:
+            return int(base_size * 0.4)
+        elif length <= 2:
             return int(base_size * 0.5)
-        elif length <= 10:
-            return int(base_size * 0.5)
+        elif length <= 3:
+            return int(base_size * 0.6)
         elif length <= 4:
             return int(base_size * 0.7)
-        elif length <= 15:
+        elif length <= 5:
+            return int(base_size * 0.8)
+        elif length <= 6:
+            return int(base_size * 0.9)
+        elif length <= 7:
+            return int(base_size * 1.0)
+        elif length <= 8:
+            return int(base_size * 1.1)
+        elif length <= 9:
             return int(base_size * 1.2)
-        else:
+        elif length <= 10:
+            return int(base_size * 1.3)
+        elif length <= 11:
+            return int(base_size * 1.4)
+        elif length <= 12:
             return int(base_size * 1.5)
+        elif length <= 13:
+            return int(base_size * 1.6)
+        elif length <= 14:
+            return int(base_size * 1.7)
+        elif length <= 15:
+            return int(base_size * 1.8)
+        else:
+            return int(base_size * 2.0)
     else:
         return base_size
 
@@ -541,7 +565,12 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
 
         font_size -= 1
 
-    font = ImageFont.truetype(FONT_PATH, size=font_size)
+    try:
+        font = ImageFont.truetype(FONT_PATH, size=font_size)
+    except IOError:
+        logger.error(f"Fuente no encontrada en {FONT_PATH}. Usando fuente por defecto.")
+        font = ImageFont.load_default()
+
     text_bbox = draw.textbbox((0, 0), name, font=font)
     text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
     text_x = (bg.width - text_width) // 2
@@ -559,7 +588,14 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
     logger.info(f"Combined image {name} with background successfully")
     return bg
 
-def combine_images(images, username: str, item_count: int, logo_filename="logo.png", show_fake_text: bool = False, custom_link: str = "Discord.gg/KayyShop"):
+def combine_images(
+    images,
+    username: str,
+    item_count: int,
+    logo_filename="logo.png",
+    show_fake_text: bool = False,
+    custom_link: str = "Discord.gg/KayyShop"
+):
     max_width = 1848
     max_height = 2048
 
@@ -572,15 +608,10 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
         max_cols += 1
         num_rows = math.ceil(num_items / max_cols)
 
-    while num_rows > max_cols:
-        max_cols += 1
-        num_rows += 1
-
     item_width = max_width // max_cols
     item_height = max_height // num_rows
-
     image_size = min(item_width, item_height)
-    spacing = 0
+    spacing = 0 
 
     total_width = max_cols * image_size + (max_cols - 1) * spacing
     total_height = num_rows * image_size + (num_rows - 1) * spacing
@@ -594,7 +625,7 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
         col = idx % max_cols
         row = idx // max_cols
         position = (col * (image_size + spacing), row * (image_size + spacing))
-        resized_image = image.resize((image_size, image_size))
+        resized_image = image.resize((image_size, image_size), Image.Resampling.LANCZOS)
         combined_image.paste(resized_image, position, resized_image)
 
     try:
@@ -605,21 +636,24 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
 
     logo_height = int(empty_space_height * 0.6)
     logo_width = int((logo_height / logo.height) * logo.width)
-    logo_position = (10, total_height - empty_space_height + (empty_space_height - logo_height) // 2)
+    logo = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
 
-    logo = logo.resize((logo_width, logo_height))
+    logo_position = (
+        10,
+        total_height - empty_space_height + (empty_space_height - logo_height) // 2 
+    )
     combined_image.paste(logo, logo_position, logo)
 
     text1 = f"Objetos Totales: {item_count}"
     text2 = f"Checkeado Por {username} | {datetime.now().strftime('%d/%m/%y')}"
     text3 = custom_link
-    max_text_width = total_width - (logo_position[0] + logo_width + 10)
+    max_text_width = total_width - (logo_position[0] + logo_width + 20)
     font_size = logo_height // 3
 
     try:
         font = ImageFont.truetype(FONT_PATH, size=font_size)
     except IOError:
-        logger.error(f"Fuente no encontrada en {FONT_PATH}. Asegúrate de que la fuente exista.")
+        logger.error(f"Fuente no encontrada en {FONT_PATH}. Usando fuente por defecto.")
         font = ImageFont.load_default()
 
     text_bbox1 = font.getbbox(text1)
@@ -629,7 +663,10 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
     text_width2, text_height2 = text_bbox2[2] - text_bbox2[0], text_bbox2[3] - text_bbox2[1]
     text_width3, text_height3 = text_bbox3[2] - text_bbox3[0], text_bbox3[3] - text_bbox3[1]
 
-    while (text_width1 > max_text_width or text_width2 > max_text_width or text_width3 > max_text_width) and font_size > 8:
+    while (
+        (text_width1 > max_text_width or text_width2 > max_text_width or text_width3 > max_text_width)
+        and font_size > 8
+    ):
         font_size -= 1
         try:
             font = ImageFont.truetype(FONT_PATH, size=font_size)
@@ -643,17 +680,18 @@ def combine_images(images, username: str, item_count: int, logo_filename="logo.p
         text_width2, text_height2 = text_bbox2[2] - text_bbox2[0], text_bbox2[3] - text_bbox2[1]
         text_width3, text_height3 = text_bbox3[2] - text_bbox3[0], text_bbox3[3] - text_bbox3[1]
 
-    text_x1 = logo_position[0] + logo_width + 10
-    text_y1 = logo_position[1] + (logo_height - text_height1 - text_height2 - text_height3) // 2
-    text_x2 = text_x1
+    total_text_height = text_height1 + text_height2 + text_height3 + 10
+    text_y_start = total_height - empty_space_height + (empty_space_height - total_text_height) // 2
+
+    text_x = logo_position[0] + logo_width + 10
+    text_y1 = text_y_start
     text_y2 = text_y1 + text_height1 + 5
-    text_x3 = text_x1
     text_y3 = text_y2 + text_height2 + 5
 
     draw = ImageDraw.Draw(combined_image)
-    draw.text((text_x1, text_y1), text1, fill="white", font=font)
-    draw.text((text_x2, text_y2), text2, fill="white", font=font)
-    draw.text((text_x3, text_y3), text3, fill="white", font=font)
+    draw.text((text_x, text_y1), text1, fill="white", font=font)
+    draw.text((text_x, text_y2), text2, fill="white", font=font)
+    draw.text((text_x, text_y3), text3, fill="white", font=font)
 
     return combined_image
 
@@ -816,6 +854,42 @@ def create_season_messages(seasons_info):
     
     return messages
 
+async def send_start_menu(update: Update, context: CallbackContext):
+    keyboard = [
+        [InlineKeyboardButton("🔑 Iniciar Sesión", callback_data='cmd_login')],
+        [
+            InlineKeyboardButton("🚀 Lanzar Cuenta", callback_data='cmd_launch'),
+            InlineKeyboardButton("🗑️ Eliminar Amigos", callback_data='cmd_eliminar_amigos')
+        ],
+        [
+            InlineKeyboardButton("🔧 Cambiar Logo", callback_data='cmd_cambiar_logo'),
+            InlineKeyboardButton("✏️ Cambiar Link", callback_data='cmd_cambiar_link')
+        ],
+        [
+            InlineKeyboardButton("🎨 Cambiar Estilo", callback_data='cmd_cambiar'),
+            InlineKeyboardButton("🔄 Resetear Personalizaciones", callback_data='cmd_resetear')
+        ],
+        [
+            InlineKeyboardButton("🆘 Ayuda", callback_data='cmd_help')
+        ]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    nuevo_texto = (
+        "👋 ¡Bienvenido al bot Kayy Skin Checker\n\n"
+        "📰 Nuestro canal de noticias: https://discord.gg/kayyshop\n\n"
+        "Al usar el bot, aceptas automáticamente el "
+        "<a href=\"https://telegra.ph/User-Agreement-for-the-Epic-Games-Telegram-Bot-08-16\">acuerdo del usuario</a>."
+    )
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=nuevo_texto,
+        reply_markup=reply_markup,
+        parse_mode="HTML",
+        disable_web_page_preview=True
+    )
 
 async def cambiar(update: Update, context: CallbackContext):
     V1_IMAGE_PATH = os.path.join(current_dir, "Cuadrados", "Fondos", "V1.jpg")
@@ -892,6 +966,8 @@ async def cambiar_callback(update: Update, context: CallbackContext):
              f"Las próximas imágenes usarán esa versión de fondo.",
         parse_mode="HTML"
     )
+    
+    await send_start_menu(update, context)
 
 async def createimg(
     ids: list,
@@ -941,7 +1017,7 @@ async def createimg(
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
                 if cid_lower == 'cid_029_athena_commando_f_halloween':
-                    if 'Mat3' in locker_data['unlocked_styles'].get('cid_029_athena_commando_f_halloween', []):
+                    if 'mat3' in locker_data['unlocked_styles'].get('cid_029_athena_commando_f_halloween', []):
                         make_mythic = True
                         cosmetic_found['name'] = "OG Ghoul Trooper"
                     else:
@@ -949,8 +1025,19 @@ async def createimg(
                 if cid_lower in mythic_ids:
                     make_mythic = True
 
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_315_athena_commando_m_teriyakifish':
+                    if 'stage3' in locker_data['unlocked_styles'].get('cid_315_athena_commando_m_teriyakifish', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "Fishstick World Cup"
+                    else:
+                        cosmetic_found['name'] = "Fishstick"
+                if cid_lower in mythic_ids:
+                    make_mythic = True
+
         if cid_lower == 'cid_030_athena_commando_m_halloween':
-            if 'Mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
+            if 'mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
                 make_mythic = True
                 cosmetic_found['name'] = "OG Skull Trooper"
             else:
@@ -1051,7 +1138,6 @@ async def createimg(
     else:
         logger.warning("No images to combine, returning None")
         return None
-    
 
 async def handle_logo_upload(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1094,7 +1180,8 @@ async def handle_logo_upload(update: Update, context: CallbackContext):
             text="⚠️ Ocurrió un error al procesar la imagen. Asegúrate de que sea una imagen válida."
         )
     finally:
-        pending_logo_changes.discard(user_id)  
+        pending_logo_changes.discard(user_id)
+        await send_start_menu(update, context)  
 
 async def resetear_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1131,11 +1218,15 @@ async def resetear_command(update: Update, context: CallbackContext):
             chat_id=update.effective_chat.id,
             text="⚠️ Ocurrió un error al restablecer tus personalizaciones. Por favor, intenta nuevamente."
         )
+    
+    finally:
+        await send_start_menu(update, context)
 
 async def handle_link_upload(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
+
     if user_id not in pending_link_changes:
-        return 
+        return
 
     new_text = update.message.text.strip()
 
@@ -1171,8 +1262,7 @@ async def handle_link_upload(update: Update, context: CallbackContext):
         )
     finally:
         pending_link_changes.discard(user_id)
-
-
+        await send_start_menu(update, context)
 
 async def launch(update: Update, context: CallbackContext):
     asyncio.create_task(launch_task(update, context))
@@ -1182,28 +1272,28 @@ async def launch_task(update: Update, context: CallbackContext):
         epic_generator = EpicGenerator()
         await epic_generator.start()
         device_code_url, device_code = await epic_generator.create_device_code()
-        
+
         markup = InlineKeyboardMarkup([
             [InlineKeyboardButton("🔗 Autorizar Cuenta", url=device_code_url)]
         ])
-        
+
         msg = await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="Por favor, autoriza tu cuenta haciendo clic en el siguiente botón:",
             reply_markup=markup,
             parse_mode="HTML"
         )
-        
+
         user = await epic_generator.wait_for_device_code_completion(device_code)
         exchange_code = await epic_generator.create_exchange_code(user)
-        
+
         path = "C:\\Program Files\\Epic Games\\Fortnite\\FortniteGame\\Binaries\\Win64"
         launch_command = (
             f"start /d \"{path}\" FortniteLauncher.exe "
             f"-AUTH_LOGIN=unused -AUTH_PASSWORD={exchange_code} -AUTH_TYPE=exchangecode "
             f"-epicapp=Fortnite -epicenv=Prod -EpicPortal -epicuserid={user.account_id}"
         )
-        
+
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=(
@@ -1220,6 +1310,9 @@ async def launch_task(update: Update, context: CallbackContext):
             parse_mode="HTML"
         )
         logger.error(f"Error en launch_task: {e}")
+    
+    finally:
+        await send_start_menu(update, context)
 
 async def cambiar_link_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1250,14 +1343,14 @@ async def delete_friends(session: aiohttp.ClientSession, user: EpicUser):
             headers={"Authorization": f"bearer {user.access_token}"}
         ) as resp:
             if resp.status != 204:
-                print(f"Error deleting friend {friend['accountId']} ({resp.status})")
+                logger.warning(f"Error deleting friend {friend['accountId']} ({resp.status})")
 
 async def eliminar_amigos(update: Update, context: CallbackContext):
     asyncio.create_task(eliminar_amigos_task(update, context))
 
 async def eliminar_amigos_task(update: Update, context: CallbackContext):
     try:
-        logging.info("Iniciando tarea de eliminación de amigos")
+        logger.info("Iniciando tarea de eliminación de amigos")
         epic_generator = EpicGenerator()
         await epic_generator.start()
         device_code_url, device_code = await epic_generator.create_device_code()
@@ -1284,12 +1377,15 @@ async def eliminar_amigos_task(update: Update, context: CallbackContext):
             parse_mode="HTML"
         )
     except Exception as e:
-        logging.error(f"Error en eliminar_amigos_task: {e}")
+        logger.error(f"Error en eliminar_amigos_task: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=f"⚠️ Error al procesar la solicitud: {e}",
             parse_mode="HTML"
         )
+    
+    finally:
+        await send_start_menu(update, context)
 
 async def help_command(update: Update, context: CallbackContext):
     help_text = (
@@ -1312,6 +1408,9 @@ async def help_command(update: Update, context: CallbackContext):
         )
     except Exception as e:
         logger.error(f"Error al enviar el mensaje de ayuda: {e}")
+    
+    finally:
+        await send_start_menu(update, context)
 
 async def login(update: Update, context: CallbackContext):
     asyncio.create_task(login_task(update, context))
@@ -1365,7 +1464,6 @@ async def login_task(update: Update, context: CallbackContext):
             save_verification_counts(verification_counts)
 
             await send_webhook_message(
-                "EL LINK DE TU WEEBHOOK DE DISCORD",
                 f"Usuario de Telegram {telegram_username} ha verificado {verification_counts[telegram_user_id]} veces."
             )
 
@@ -1470,14 +1568,14 @@ async def login_task(update: Update, context: CallbackContext):
             athena_data = profile
             for item_id, item_data in athena_data['profileChanges'][0]['profile']['items'].items():
                 template_id = item_data.get('templateId', '')
-                if template_id.startswith('Athena'):
-                    lowercase_cosmetic_id = template_id.split(':')[1]
-                    if lowercase_cosmetic_id not in locker_data['unlocked_styles']:
-                        locker_data['unlocked_styles'][lowercase_cosmetic_id] = []
+                if idpattern.match(template_id):
+                    item_type = get_cosmetic_type(template_id)
+                    if item_type not in locker_data['unlocked_styles']:
+                        locker_data['unlocked_styles'][template_id] = []
                     attributes = item_data.get('attributes', {})
                     variants = attributes.get('variants', [])
                     for variant in variants:
-                        locker_data['unlocked_styles'][lowercase_cosmetic_id].extend(variant.get('owned', []))
+                        locker_data['unlocked_styles'][template_id].extend(variant.get('owned', []))
 
             exclusive_cosmetics = [
                 'CID_029_ATHENA_COMMANDO_F_HALLOWEEN',
@@ -1581,34 +1679,32 @@ async def login_task(update: Update, context: CallbackContext):
         )
         logger.error(f"Error en login_task: {e}")
     
+    finally:
+        await send_start_menu(update, context)
+
+def configure_webhook():
+    global webhook_url
+    while True:
+        use_webhook = input("¿Quieres usar webhook para notificaciones? (sí/no): ").strip().lower()
+        if use_webhook in ['sí', 'si', 's']:
+            webhook_url_input = input("Introduce la URL del webhook de Discord: ").strip()
+            if re.match(r'^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$', webhook_url_input):
+                webhook_url = webhook_url_input
+                logger.info(f"Webhook configurado: {webhook_url}")
+                break
+            else:
+                print("URL de webhook inválida. Por favor, intenta nuevamente.")
+        elif use_webhook in ['no', 'n']:
+            webhook_url = None
+            logger.info("Webhook no será utilizado.")
+            break
+        else:
+            print("Respuesta no reconocida. Por favor, responde con 'sí' o 'no'.")
+
+
 
 async def start_command(update: Update, context: CallbackContext):
-    keyboard = [
-        [InlineKeyboardButton("🔑 Iniciar Sesión", callback_data='cmd_login')],
-        [
-            InlineKeyboardButton("🚀 Lanzar Cuenta", callback_data='cmd_launch'),
-            InlineKeyboardButton("🗑️ Eliminar Amigos", callback_data='cmd_eliminar_amigos')
-        ],
-        [
-            InlineKeyboardButton("🔧 Cambiar Logo", callback_data='cmd_cambiar_logo'),
-            InlineKeyboardButton("✏️ Cambiar Link", callback_data='cmd_cambiar_link')
-        ],
-        [
-            InlineKeyboardButton("🎨 Cambiar Estilo", callback_data='cmd_cambiar'),
-            InlineKeyboardButton("🔄 Resetear Personalizaciones", callback_data='cmd_resetear')
-        ],
-        [
-            InlineKeyboardButton("🆘 Ayuda", callback_data='cmd_help')
-        ]
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(
-        "¡Bienvenido! Elige una opción del menú:",
-        reply_markup=reply_markup,
-        parse_mode="HTML"
-    )
+    await send_start_menu(update, context)
 
 async def button_handler(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -1636,13 +1732,16 @@ async def button_handler(update: Update, context: CallbackContext):
         await query.edit_message_text(text="🛑 Opción no reconocida.")
         return
 
-    try:
-        await query.edit_message_text(
-        )
-    except Exception as e:
-        logger.error(f"Error al editar el mensaje: {e}")
+async def general_text_handler_func(update: Update, context: CallbackContext):
+    user_id = update.effective_user.id
+
+    if user_id in pending_link_changes:
+        await handle_link_upload(update, context)
+    else:
+        await start_command(update, context)
 
 if __name__ == "__main__":
+    configure_webhook()
     TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
     application = ApplicationBuilder().token(TOKEN).build()
 
@@ -1651,21 +1750,17 @@ if __name__ == "__main__":
     login_handler = CommandHandler('login', login)
     launch_handler = CommandHandler('launch', launch)
     cambiar_logo_handler = CommandHandler('cambiar_logo', cambiar_logo_command)
-    logo_upload_handler = MessageHandler(filters.PHOTO, handle_logo_upload)
     eliminar_amigos_handler = CommandHandler('eliminar_amigos', eliminar_amigos)
     cambiar_handler = CommandHandler('cambiar', cambiar)
     cambiar_callback_handler = CallbackQueryHandler(cambiar_callback, pattern="^rarity_v")
     cambiar_link_handler = CommandHandler('cambiar_link', cambiar_link_command)
-    link_upload_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, handle_link_upload)
     resetear_handler = CommandHandler('resetear', resetear_command)
     button_handler_registrar = CallbackQueryHandler(button_handler, pattern='^cmd_')
 
     application.add_handler(start_handler)
     application.add_handler(resetear_handler)
     application.add_handler(cambiar_link_handler)
-    application.add_handler(link_upload_handler)
     application.add_handler(cambiar_logo_handler)
-    application.add_handler(logo_upload_handler)
     application.add_handler(eliminar_amigos_handler)
     application.add_handler(cambiar_handler)
     application.add_handler(cambiar_callback_handler)
@@ -1673,6 +1768,12 @@ if __name__ == "__main__":
     application.add_handler(launch_handler)
     application.add_handler(help_handler)
     application.add_handler(button_handler_registrar)
+
+    logo_upload_handler = MessageHandler(filters.PHOTO, handle_logo_upload)
+    application.add_handler(logo_upload_handler)
+
+    general_text_handler_instance = MessageHandler(filters.TEXT & ~filters.COMMAND, general_text_handler_func)
+    application.add_handler(general_text_handler_instance)
 
     print("Bot de Telegram iniciado")
     application.run_polling()
