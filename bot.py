@@ -6,6 +6,8 @@ import math
 import json
 import platform
 import asyncio
+import multiprocessing
+import concurrent.futures
 from datetime import datetime
 
 import aiohttp
@@ -215,7 +217,7 @@ mythic_ids = [
     "cid_208_athena_commando_m_footballduded", "cid_209_athena_commando_m_footballdudec", "cid_210_athena_commando_f_footballgirla",
     "cid_211_athena_commando_f_footballgirlb", "cid_212_athena_commando_f_footballgirlc", "cid_238_athena_commando_f_footballgirld", 
     "cid_239_athena_commando_m_footballduded", "cid_240_athena_commando_f_plague", "cid_313_athena_commando_m_kpopfashion", "cid_082_athena_commando_m_scavenger",
-     "cid_090_athena_commando_m_tactical", "cid_657_athena_commando_f_techopsblue", "cid_371_athena_commando_m_speedymidnight", "cid_085_athena_commando_m_twitch",
+    "cid_090_athena_commando_m_tactical", "cid_657_athena_commando_f_techopsblue", "cid_371_athena_commando_m_speedymidnight", "cid_085_athena_commando_m_twitch",
     "cid_342_athena_commando_m_streetracermetallic", "cid_434_athena_commando_f_stealthhonor", "cid_441_athena_commando_f_cyberscavengerblue", "cid_479_athena_commando_f_davinci",
     "cid_478_athena_commando_f_worldcup", "cid_515_athena_commando_m_barbequelarry", "cid_516_athena_commando_m_blackwidowrogue", "cid_657_athena_commando_f_techOpsBlue",
     "cid_619_athena_commando_f_techllama", "cid_660_athena_commando_f_bandageninjablue", "cid_703_athena_commando_m_cyclone", "cid_084_athena_commando_m_assassin", "cid_083_athena_commando_f_tactical",
@@ -615,7 +617,6 @@ def combine_images(
 
     total_width = max_cols * image_size + (max_cols - 1) * spacing
     total_height = num_rows * image_size + (num_rows - 1) * spacing
-
     empty_space_height = image_size
     total_height += empty_space_height
 
@@ -627,7 +628,6 @@ def combine_images(
         position = (col * (image_size + spacing), row * (image_size + spacing))
         resized_image = image.resize((image_size, image_size), Image.Resampling.LANCZOS)
         combined_image.paste(resized_image, position, resized_image)
-
     try:
         logo = Image.open(logo_filename).convert("RGBA")
     except FileNotFoundError:
@@ -969,6 +969,42 @@ async def cambiar_callback(update: Update, context: CallbackContext):
     
     await send_start_menu(update, context)
 
+def _process_cosmetic_item(args):
+    cid              = args["cid"]
+    name             = args["name"]
+    rarity           = args["rarity"]
+    background_path  = args["background_path"]
+    substitute_url   = args.get("substitute_image_url")
+
+    imgpath = f"./cache/{cid}.png"
+
+    try:
+        if substitute_url:
+            if substitute_url.startswith("http"):
+                logger.info(f"Substitute es URL HTTP para {cid}. Usando placeholder.")
+                img = Image.open("./tbd.png").convert("RGBA")
+            else:
+                logger.info(f"Substitute es ruta local: {substitute_url}")
+                img = Image.open(substitute_url).convert("RGBA")
+        else:
+            img = Image.open(imgpath).convert("RGBA")
+
+        if img.size == (1, 1):
+            raise IOError("Imagen de 1x1 (placeholder).")
+    except (UnidentifiedImageError, IOError) as e:
+        logger.error(f"No se pudo abrir la imagen para {cid} ({name}). Error: {e}")
+        img = Image.open("./tbd.png").convert("RGBA")
+
+    try:
+        background = Image.open(background_path)
+    except (UnidentifiedImageError, IOError) as e:
+        logger.error(f"No se pudo abrir el background: {background_path}. Error: {e}")
+        background = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    final_img = combine_with_background(img, background, name, rarity)
+
+    logger.info(f"Processed {name} ({cid}) with rarity: {rarity}")
+    return final_img
+
 async def createimg(
     ids: list,
     session: aiohttp.ClientSession,
@@ -985,39 +1021,36 @@ async def createimg(
 
     if not os.path.exists('./cache'):
         os.makedirs('./cache')
-
     await download_cosmetic_images(ids, session)
 
-    user_config = load_user_config(telegram_user_id)
+    user_config    = load_user_config(telegram_user_id)
     rarity_version = user_config.get("rarity_version", "v2")
-    custom_link = user_config.get("custom_link", "Discord.gg/KayyShop")
+    custom_link    = user_config.get("custom_link", "Discord.gg/KayyShop")
 
     if rarity_version == "v1":
         backgrounds_to_use = rarity_backgroundsV1
     else:
         backgrounds_to_use = rarity_backgroundsV2
 
-    user_dir = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
+    user_dir  = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
     logo_path = os.path.join(user_dir, "logo.png")
     if os.path.exists(logo_path):
         logo_filename = logo_path
     else:
         logo_filename = os.path.join(current_dir, "logo.png")
 
-    images = []
-    info_list = []
-    cosmetic_info_tasks = [get_cosmetic_info(id, session) for id in ids]
+    cosmetic_info_tasks = [get_cosmetic_info(cid, session) for cid in ids]
     results = await asyncio.gather(*cosmetic_info_tasks)
 
-    for info in results:
-        cosmetic_found = info
-        make_mythic = False
+    info_list = []
+    for cosmetic_found in results:
         cid_lower = cosmetic_found['id'].lower()
+        make_mythic = False
 
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
                 if cid_lower == 'cid_029_athena_commando_f_halloween':
-                    if 'mat3' in locker_data['unlocked_styles'].get('cid_029_athena_commando_f_halloween', []):
+                    if 'Mat3' in locker_data['unlocked_styles'].get('cid_029_athena_commando_f_halloween', []):
                         make_mythic = True
                         cosmetic_found['name'] = "OG Ghoul Trooper"
                     else:
@@ -1025,23 +1058,13 @@ async def createimg(
                 if cid_lower in mythic_ids:
                     make_mythic = True
 
-        if exclusive_cosmetics and locker_data:
-            if cosmetic_found['id'].upper() in exclusive_cosmetics:
-                if cid_lower == 'cid_315_athena_commando_m_teriyakifish':
-                    if 'stage3' in locker_data['unlocked_styles'].get('cid_315_athena_commando_m_teriyakifish', []):
-                        make_mythic = True
-                        cosmetic_found['name'] = "Fishstick World Cup"
-                    else:
-                        cosmetic_found['name'] = "Fishstick"
-                if cid_lower in mythic_ids:
-                    make_mythic = True
-
         if cid_lower == 'cid_030_athena_commando_m_halloween':
-            if 'mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
+            if 'Mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
                 make_mythic = True
                 cosmetic_found['name'] = "OG Skull Trooper"
             else:
                 cosmetic_found['name'] = "Skull Trooper (NO OG)"
+
         if cid_lower in mythic_ids:
             make_mythic = True
 
@@ -1051,74 +1074,68 @@ async def createimg(
 
         info_list.append(cosmetic_found)
 
-    for info in info_list:
-        cid = info["id"]
-        imgpath = f"./cache/{cid}.png"
-        substitute_image_url = None
-
+    def find_substitute_url(cosmetic, locker_data):
         substitution_map = {
             'cid_029_athena_commando_f_halloween': {
-                'mat3': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/pink.png"
+                'mat3': "./Estilos/Ghoul.png"
             },
             'cid_315_athena_commando_m_teriyakifish': {
-                'stage3': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/Fishi.png"
+                'stage3': "./Estilos/Fishy.png"
             },
             'cid_030_athena_commando_m_halloween': {
-                'mat1': "https://raw.githubusercontent.com/Kayy9961/Data-Base-Personal/refs/heads/main/Skull.png"
+                'mat1': "./Estilos/Skull.png"
             }
         }
 
-        cosmetic_id_lower = info["id"].lower()
-        if cosmetic_id_lower in substitution_map:
-            styles = locker_data.get('unlocked_styles', {}).get(info["id"], [])
-            for style in styles:
-                style_lower = style.lower()
-                if style_lower in substitution_map[cosmetic_id_lower]:
-                    substitute_image_url = substitution_map[cosmetic_id_lower][style_lower]
-                    logger.info(f"Substituting image for {cid} with {style} variant from API")
-                    break
+        cid_lower = cosmetic["id"].lower()
+        if not locker_data:
+            return None
+        if cid_lower not in substitution_map:
+            return None
+        styles = locker_data.get('unlocked_styles', {}).get(cosmetic["id"], [])
+        for style in styles:
+            style_lower = style.lower()
+            if style_lower in substitution_map[cid_lower]:
+                return substitution_map[cid_lower][style_lower]
+        return None
+    work_args_list = []
+    for cosmetic in info_list:
+        rarity = cosmetic.get("rarity", "Common")
+        background_path = backgrounds_to_use.get(rarity, backgrounds_to_use["Common"])
 
-        try:
-            if substitute_image_url:
-                async with session.get(substitute_image_url) as resp:
-                    if resp.status == 200:
-                        img_bytes = await resp.read()
-                        img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
-                        logger.info(f"Loaded substitute image for {cid} from API")
-                    else:
-                        logger.warning(f"Failed to download substitute image for {cid} from {substitute_image_url}. Status: {resp.status}")
-                        img = Image.open("./tbd.png").convert("RGBA")
-            else:
-                img = Image.open(imgpath)
-                if img.size == (1, 1):
-                    raise IOError("Image is empty")
-        except (UnidentifiedImageError, IOError) as e:
-            logger.error(f"Unable to open image for {cid}. Using placeholder. Error: {e}")
-            img = Image.open("./tbd.png").convert("RGBA")
+        sub_url = find_substitute_url(cosmetic, locker_data)
 
-        background_path = backgrounds_to_use.get(info["rarity"], backgrounds_to_use["Common"])
-        background = Image.open(background_path)
-        img = combine_with_background(img, background, info["name"], info["rarity"])
-        images.append(img)
-        logger.info(f"Processed image for {info['name']} with rarity {info['rarity']}")
+        work_args = {
+            "cid": cosmetic["id"],
+            "name": cosmetic["name"],
+            "rarity": rarity,
+            "background_path": background_path,
+            "substitute_image_url": sub_url,
+        }
+        work_args_list.append(work_args)
+
+    images = []
+    if work_args_list:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
+            for final_img in executor.map(_process_cosmetic_item, work_args_list):
+                images.append(final_img)
 
     if images:
         if sort_by_rarity:
-            sorted_images = [
-                img for _, img in sorted(
-                    zip(info_list, images),
-                    key=lambda x: rarity_priority.get(x[0]["rarity"], 999)
-                )
-            ]
+            sorted_pairs = sorted(
+                zip(info_list, images),
+                key=lambda x: rarity_priority.get(x[0]["rarity"], 999)
+            )
+            sorted_images = [img for _, img in sorted_pairs]
+
         elif item_order:
-            sorted_images = [
-                img for _, img in sorted(
-                    zip(info_list, images),
-                    key=lambda x: item_order.index(get_cosmetic_type(x[0]["id"])) 
-                              if get_cosmetic_type(x[0]["id"]) in item_order 
-                              else len(item_order)
-                )
-            ]
+            sorted_pairs = sorted(
+                zip(info_list, images),
+                key=lambda x: item_order.index(get_cosmetic_type(x[0]["id"]))
+                    if get_cosmetic_type(x[0]["id"]) in item_order
+                    else len(item_order)
+            )
+            sorted_images = [img for _, img in sorted_pairs]
         else:
             sorted_images = images
 
@@ -1130,6 +1147,7 @@ async def createimg(
             show_fake_text=show_fake_text, 
             custom_link=custom_link
         )
+
         f = io.BytesIO()
         combined_image.save(f, "PNG")
         f.seek(0)
@@ -1568,14 +1586,14 @@ async def login_task(update: Update, context: CallbackContext):
             athena_data = profile
             for item_id, item_data in athena_data['profileChanges'][0]['profile']['items'].items():
                 template_id = item_data.get('templateId', '')
-                if idpattern.match(template_id):
-                    item_type = get_cosmetic_type(template_id)
-                    if item_type not in locker_data['unlocked_styles']:
-                        locker_data['unlocked_styles'][template_id] = []
+                if template_id.startswith('Athena'):
+                    lowercase_cosmetic_id = template_id.split(':')[1]
+                    if lowercase_cosmetic_id not in locker_data['unlocked_styles']:
+                        locker_data['unlocked_styles'][lowercase_cosmetic_id] = []
                     attributes = item_data.get('attributes', {})
                     variants = attributes.get('variants', [])
                     for variant in variants:
-                        locker_data['unlocked_styles'][template_id].extend(variant.get('owned', []))
+                        locker_data['unlocked_styles'][lowercase_cosmetic_id].extend(variant.get('owned', []))
 
             exclusive_cosmetics = [
                 'CID_029_ATHENA_COMMANDO_F_HALLOWEEN',
@@ -1701,8 +1719,6 @@ def configure_webhook():
         else:
             print("Respuesta no reconocida. Por favor, responde con 'sí' o 'no'.")
 
-
-
 async def start_command(update: Update, context: CallbackContext):
     await send_start_menu(update, context)
 
@@ -1742,7 +1758,7 @@ async def general_text_handler_func(update: Update, context: CallbackContext):
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
+    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM AQUI"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
