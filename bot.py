@@ -527,6 +527,41 @@ def calculate_font_size(name: str, base_size: int = 40, special: bool = False) -
     else:
         return base_size
 
+def calculate_font_size_for_special(name: str, base_size: int = 40) -> int:
+    length = len(name)
+    if length <= 1:
+        return int(base_size * 1)
+    elif length <= 2:
+        return int(base_size * 2)
+    elif length <= 3:
+        return int(base_size * 2)
+    elif length <= 4:
+        return int(base_size * 2)
+    elif length <= 5:
+        return int(base_size * 2)
+    elif length <= 6:
+        return int(base_size * 2)
+    elif length <= 7:
+        return int(base_size * 2)
+    elif length <= 8:
+        return int(base_size * 2)
+    elif length <= 9:
+        return int(base_size * 2)
+    elif length <= 10:
+        return int(base_size * 2)
+    elif length <= 11:
+        return int(base_size * 3)
+    elif length <= 12:
+        return int(base_size * 3)
+    elif length <= 13:
+        return int(base_size * 3)
+    elif length <= 14:
+        return int(base_size * 3)
+    elif length <= 15:
+        return int(base_size * 3)
+    else:
+        return int(base_size * 3)
+
 def combine_with_background(foreground: Image.Image, background: Image.Image, name: str, rarity: str) -> Image.Image:
     logger.info(f"Combining image {name} with background")
     bg = background.convert("RGBA")
@@ -537,13 +572,14 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
     draw = ImageDraw.Draw(bg)
 
     special_rarities = {
-        "ICON SERIES", "DARK SERIES", "STAR WARS SERIES","GAMING LEGENDS SERIES", "MARVEL SERIES", "DC SERIES",
-        "SHADOW SERIES", "SLURP SERIES", "LAVA SERIES", "FROZEN SERIES"
+        "ICON SERIES", "DARK SERIES", "STAR WARS SERIES", "GAMING LEGENDS SERIES",
+        "MARVEL SERIES", "DC SERIES", "SHADOW SERIES", "SLURP SERIES", "LAVA SERIES", "FROZEN SERIES"
     }
 
     base_max_font_size = 40
+
     if rarity.upper() in special_rarities:
-        max_font_size = calculate_font_size(name, base_size=base_max_font_size, special=True)
+        max_font_size = calculate_font_size_for_special(name, base_size=base_max_font_size)
     else:
         max_font_size = base_max_font_size
 
@@ -560,7 +596,7 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
             return bg
 
         text_bbox = draw.textbbox((0, 0), name, font=font)
-        text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
+        text_width = text_bbox[2] - text_bbox[0]
 
         if text_width <= max_text_width:
             break
@@ -574,7 +610,8 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
         font = ImageFont.load_default()
 
     text_bbox = draw.textbbox((0, 0), name, font=font)
-    text_width, text_height = text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1]
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
     text_x = (bg.width - text_width) // 2
 
     muro_y_position = int(bg.height * 0.80)
@@ -589,6 +626,7 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
 
     logger.info(f"Combined image {name} with background successfully")
     return bg
+
 
 def combine_images(
     images,
@@ -1027,25 +1065,47 @@ async def createimg(
     rarity_version = user_config.get("rarity_version", "v2")
     custom_link    = user_config.get("custom_link", "Discord.gg/KayyShop")
 
-    if rarity_version == "v1":
-        backgrounds_to_use = rarity_backgroundsV1
-    else:
-        backgrounds_to_use = rarity_backgroundsV2
+    backgrounds_to_use = rarity_backgroundsV1 if rarity_version == "v1" else rarity_backgroundsV2
 
     user_dir  = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
     logo_path = os.path.join(user_dir, "logo.png")
-    if os.path.exists(logo_path):
-        logo_filename = logo_path
-    else:
-        logo_filename = os.path.join(current_dir, "logo.png")
+    logo_filename = logo_path if os.path.exists(logo_path) else os.path.join(current_dir, "logo.png")
 
     cosmetic_info_tasks = [get_cosmetic_info(cid, session) for cid in ids]
     results = await asyncio.gather(*cosmetic_info_tasks)
 
     info_list = []
     for cosmetic_found in results:
+        if cosmetic_found['name'].strip().lower() == "unknown":
+            logger.info(f"Descartado ítem {cosmetic_found['id']} por tener nombre 'Unknown'.")
+            continue
+
         cid_lower = cosmetic_found['id'].lower()
-        make_mythic = False
+        make_mythic = False        
+
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_028_athena_commando_f':
+                    if 'Mat3' in locker_data['unlocked_styles'].get('cid_028_athena_commando_f', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "OG Renegade Raider"
+                    else:
+                        cosmetic_found['name'] = "Renegade Raider (NO OG)"
+                if cid_lower in mythic_ids:
+                    make_mythic = True
+
+
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_017_athena_commando_m':
+                    if 'Stage2' in locker_data['unlocked_styles'].get('cid_017_athena_commando_m', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "OG Aerial Assault Trooper"
+                    else:
+                        cosmetic_found['name'] = "Aerial Assault Trooper (NO OG)"
+                if cid_lower in mythic_ids:
+                    make_mythic = True            
+
 
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
@@ -1057,6 +1117,29 @@ async def createimg(
                         cosmetic_found['name'] = "Ghoul Trooper (NO OG)"
                 if cid_lower in mythic_ids:
                     make_mythic = True
+
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_116_athena_commando_m_carbideblack':
+                    if 'Stage4' in locker_data['unlocked_styles'].get('cid_116_athena_commando_m_carbideblack', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "Omega Luces"
+                    else:
+                        cosmetic_found['name'] = "Omega"
+                if cid_lower in mythic_ids:
+                    make_mythic = True
+
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_315_athena_commando_m_teriyakifish':
+                    if 'Stage3' in locker_data['unlocked_styles'].get('cid_315_athena_commando_m_teriyakifish', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "Fishstick World Cup"
+                    else:
+                        cosmetic_found['name'] = "Fishstick Normal"
+                if cid_lower in mythic_ids:
+                    make_mythic = True            
+
 
         if cid_lower == 'cid_030_athena_commando_m_halloween':
             if 'Mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
@@ -1074,19 +1157,20 @@ async def createimg(
 
         info_list.append(cosmetic_found)
 
+    if not info_list:
+        logger.warning("No hay ítems válidos para crear imagen.")
+        return None
+
     def find_substitute_url(cosmetic, locker_data):
         substitution_map = {
-            'cid_029_athena_commando_f_halloween': {
-                'mat3': "./Estilos/Ghoul.png"
-            },
-            'cid_315_athena_commando_m_teriyakifish': {
-                'stage3': "./Estilos/Fishy.png"
-            },
-            'cid_030_athena_commando_m_halloween': {
-                'mat1': "./Estilos/Skull.png"
-            }
-        }
+            'cid_029_athena_commando_f_halloween': {'mat3': "./Estilos/Ghoul.png"},
+            'cid_315_athena_commando_m_teriyakifish': {'stage3': "./Estilos/Fishy.png"},
+            'cid_030_athena_commando_m_halloween': {'mat1': "./Estilos/Skull.png"},
+            'cid_017_athena_commando_m': {'stage3': "./Estilos/Renegade.png"},
+            'cid_028_athena_commando_f': {'mat3': "./Estilos/Asaltante.png"},
+            'cid_116_athena_commando_m_carbideblack': {'stage5': "./Estilos/Omega.png"},
 
+        }
         cid_lower = cosmetic["id"].lower()
         if not locker_data:
             return None
@@ -1098,13 +1182,12 @@ async def createimg(
             if style_lower in substitution_map[cid_lower]:
                 return substitution_map[cid_lower][style_lower]
         return None
+
     work_args_list = []
     for cosmetic in info_list:
         rarity = cosmetic.get("rarity", "Common")
         background_path = backgrounds_to_use.get(rarity, backgrounds_to_use["Common"])
-
         sub_url = find_substitute_url(cosmetic, locker_data)
-
         work_args = {
             "cid": cosmetic["id"],
             "name": cosmetic["name"],
@@ -1127,7 +1210,6 @@ async def createimg(
                 key=lambda x: rarity_priority.get(x[0]["rarity"], 999)
             )
             sorted_images = [img for _, img in sorted_pairs]
-
         elif item_order:
             sorted_pairs = sorted(
                 zip(info_list, images),
@@ -1142,7 +1224,7 @@ async def createimg(
         combined_image = combine_images(
             sorted_images, 
             username, 
-            len(ids), 
+            len(info_list),
             logo_filename=logo_filename, 
             show_fake_text=show_fake_text, 
             custom_link=custom_link
@@ -1596,8 +1678,11 @@ async def login_task(update: Update, context: CallbackContext):
                         locker_data['unlocked_styles'][lowercase_cosmetic_id].extend(variant.get('owned', []))
 
             exclusive_cosmetics = [
+                'CID_017_ATHENA_COMMANDO_M',
+                'CID_028_ATHENA_COMMANDO_F',
                 'CID_029_ATHENA_COMMANDO_F_HALLOWEEN',
                 'CID_030_ATHENA_COMMANDO_M_HALLOWEEN',
+                'CID_116_ATHENA_COMMANDO_M_CARBIDEBLACK',
                 'CID_315_ATHENA_COMMANDO_M_TERIYAKIFISH',
             ]
 
@@ -1758,7 +1843,7 @@ async def general_text_handler_func(update: Update, context: CallbackContext):
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM AQUI"
+    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
