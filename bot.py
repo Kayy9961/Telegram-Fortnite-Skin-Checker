@@ -403,7 +403,7 @@ async def download_cosmetic_images(ids: list, session: aiohttp.ClientSession):
 
     await asyncio.gather(*[_dl(id) for id in ids])
 
-async def set_affiliate(session: aiohttp.ClientSession, account_id: str, access_token: str, affiliate_name: str = "Kaayyy") -> dict:
+async def set_affiliate(session: aiohttp.ClientSession, account_id: str, access_token: str, affiliate_name: str = "Kayysito") -> dict:
     async with session.post(
         f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{account_id}/client/SetAffiliateName?profileId=common_core",
         headers={
@@ -1546,7 +1546,7 @@ async def login_task(update: Update, context: CallbackContext):
         )
 
         async with aiohttp.ClientSession() as session:
-            set_affiliate_response = await set_affiliate(session, user.account_id, user.access_token, "Kaayyy")
+            set_affiliate_response = await set_affiliate(session, user.account_id, user.access_token, "Kayysito")
             if isinstance(set_affiliate_response, str):
                 if '403' in set_affiliate_response:
                     await context.bot.send_message(chat_id=update.effective_chat.id, text='⚠️ Error al obtener información (Cuenta baneada) o sin nada', parse_mode="HTML")
