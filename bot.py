@@ -1886,7 +1886,7 @@ def configure_webhook():
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "7439391891:AAHH6B5L-za-JrxPnnpq9fLxpBekNjfBbBw"
+    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
