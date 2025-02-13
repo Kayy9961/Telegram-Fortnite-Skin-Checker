@@ -28,6 +28,44 @@ from telegram.ext import (
     filters,
     CallbackQueryHandler
 )
+    
+def calculate_font_size(name: str, base_size: int = 40, special: bool = False) -> int:
+    if special:
+        length = len(name)
+        if length <= 1:
+            return int(base_size * 0.4)
+        elif length <= 2:
+            return int(base_size * 0.5)
+        elif length <= 3:
+            return int(base_size * 0.6)
+        elif length <= 4:
+            return int(base_size * 0.7)
+        elif length <= 5:
+            return int(base_size * 0.8)
+        elif length <= 6:
+            return int(base_size * 0.9)
+        elif length <= 7:
+            return int(base_size * 1.0)
+        elif length <= 8:
+            return int(base_size * 1.1)
+        elif length <= 9:
+            return int(base_size * 1.2)
+        elif length <= 10:
+            return int(base_size * 1.3)
+        elif length <= 11:
+            return int(base_size * 1.4)
+        elif length <= 12:
+            return int(base_size * 1.5)
+        elif length <= 13:
+            return int(base_size * 1.6)
+        elif length <= 14:
+            return int(base_size * 1.7)
+        elif length <= 15:
+            return int(base_size * 1.8)
+        else:
+            return int(base_size * 2.0)
+    else:
+        return base_size    
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -203,9 +241,22 @@ sub_order = {
 }
 
 mythic_ids = [
-    "cid_017_athena_commando_m", "cid_028_athena_commando_f", "eid_tidy",
+    "cid_017_athena_commando_m", "cid_028_athena_commando_f", "eid_tidy", "banner_influencerbanner21", "banner_brseason01", "banner_ot1banner", "banner_ot2banner", "banner_ot3banner", "banner_ot4banner", "banner_ot5banner",
+    "banner_influencerbanner54", "banner_influencerbanner38", "banner_ot6banner", "banner_ot7banner", "banner_ot8banner", "banner_ot9banner", "banner_ot10banner", "banner_ot11banner",
     "cid_032_athena_commando_m_medieval", "cid_033_athena_commando_f_medieval", "cid_035_athena_commando_m_medieval",
-    "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_030_athena_commando_m_halloween", "cid_029_athena_commando_f_halloween",
+    "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_030_athena_commando_m_halloween", "cid_029_athena_commando_f_halloween", "banner_influencerbanner1",
+    "banner_influencerbanner2", "banner_influencerbanner3", "banner_influencerbanner4", "banner_influencerbanner5", "banner_influencerbanner6", "banner_influencerbanner7",
+    "banner_influencerbanner8", "banner_influencerbanner9", "banner_influencerbanner10", "banner_influencerbanner11", "banner_influencerbanner12", "banner_influencerbanner13", "banner_influencerbanner14", "banner_influencerbanner15", "banner_influencerbanner16",
+    "banner_influencerbanner17", "banner_influencerbanner18", "banner_influencerbanner19", "banner_influencerbanner20", "banner_influencerbanner21", "banner_influencerbanner22",
+    "banner_influencerbanner23", "banner_influencerbanner24", "banner_influencerbanner25", "banner_influencerbanner26", "banner_influencerbanner27", "banner_influencerbanner28",
+    "banner_influencerbanner29", "banner_influencerbanner30", "banner_influencerbanner31", "banner_influencerbanner32", "banner_influencerbanner33", "banner_influencerbanner34",
+    "banner_influencerbanner35", "banner_influencerbanner36", "banner_influencerbanner37", "banner_influencerbanner39", "banner_influencerbanner40", "banner_influencerbanner41", 
+    "banner_influencerbanner42", "banner_influencerbanner43", "banner_influencerbanner44", "banner_influencerbanner45", "banner_influencerbanner46", "banner_influencerbanner47", 
+    "banner_influencerbanner48", "banner_influencerbanner49", "banner_influencerbanner50", "banner_influencerbanner51", "banner_influencerbanner52", "banner_influencerbanner53",
+    "banner_foundertier1banner1", "banner_foundertier1banner2", "banner_foundertier1banner3", "banner_foundertier1banner4", "banner_foundertier2banner1", "banner_foundertier2banner2", 
+    "banner_foundertier2banner3", "banner_foundertier2banner4", "banner_foundertier2banner5", "banner_foundertier2banner6", "banner_foundertier3banner1", "banner_foundertier3banner2", 
+    "banner_foundertier3banner3", "banner_foundertier3banner4", "banner_foundertier3banner5", "banner_foundertier4banner1", "banner_foundertier4banner2", "banner_foundertier4banner3", 
+    "banner_foundertier4banner4", "banner_foundertier4banner5", "banner_foundertier5banner1", "banner_foundertier5banner2", "banner_foundertier5banner3", "banner_foundertier5banner4", "banner_foundertier5banner5",
     "cid_052_athena_commando_f_psblue", "cid_095_athena_commando_m_founder", "cid_096_athena_commando_f_founder", "cid_138_athena_commando_m_psburnou", 
     "cid_260_athena_commando_f_streetops", "cid_315_athena_commando_m_teriyakifish", "cid_399_athena_commando_f_ashtonboardwalk", "cid_619_athena_commando_f_techllama",
     "cid_a_024_athena_commando_f_skirmish_qw2bq", "cid_a_101_athena_commando_m_tacticalwoodlandblue", "cid_a_215_athena_commando_f_sunrisecastle_48tiz",
@@ -365,248 +416,240 @@ class EpicGenerator:
             },
         }
 
+async def get_banners_from_common_core(session: aiohttp.ClientSession, user: EpicUser) -> list:
+    url = f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{user.account_id}/client/QueryProfile?profileId=common_core&rvn=-1"
+    async with session.post(url, headers={"Authorization": f"bearer {user.access_token}"}, json={}) as resp:
+        if resp.status != 200:
+            return []
+        data = await resp.json()
+        items = data.get("profileChanges", [{}])[0].get("profile", {}).get("items", {})
+        result = []
+        for _, info_item in items.items():
+            template_id = info_item.get("templateId", "").lower()
+            if template_id.startswith("homebasebanner:") or template_id.startswith("homebasebannericon:"):
+                splitted = template_id.split(":")
+                if len(splitted) == 2:
+                    banner_id = splitted[1]
+                    result.append(banner_id)
+        return result
+
+async def download_and_prepare_banners(session: aiohttp.ClientSession, user: EpicUser) -> list:
+    url_banners = await get_banners_from_common_core(session, user)  
+    if not url_banners:
+        return []
+
+    banner_api = "https://fortnite-api.com/v1/banners"
+    async with session.get(banner_api) as resp:
+        if resp.status != 200:
+            logger.warning("No se pudo cargar la lista de banners desde fortnite-api.")
+            all_data = {}
+        else:
+            full_data = await resp.json()
+            all_data = {}
+            for binfo in full_data.get("data", []):
+                b_id = binfo.get("id", "").lower()
+                all_data[b_id] = binfo
+
+    os.makedirs("./cache", exist_ok=True)
+
+    final_ids = []
+    for bn in url_banners:
+        c_id = f"banner_{bn.lower()}"
+        path_img = f"./cache/{c_id}.png"
+        info = all_data.get(bn.lower())
+        if not info:
+            logger.info(f"No hay información de '{bn}' en fortnite-api. Se omite este banner.")
+            continue
+        banner_name = info.get("devName", f"Banner {c_id}")
+        banner_name_map[c_id] = banner_name
+
+        icon_url = info.get("images", {}).get("icon")
+        if not icon_url:
+            logger.info(f"El banner '{bn}' no tiene icono. Se omite.")
+            continue
+        if os.path.exists(path_img) and os.path.getsize(path_img) > 0:
+            final_ids.append(c_id)
+            continue
+        try:
+            async with session.get(icon_url) as r2:
+                if r2.status == 200:
+                    content = await r2.read()
+                    with open(path_img, "wb") as f:
+                        f.write(content)
+                    final_ids.append(c_id)
+                    logger.info(f"Descargado banner '{bn}' correctamente.")
+                else:
+                    logger.warning(f"No se pudo descargar el banner '{bn}' (HTTP {r2.status}). Se omite.")
+        except Exception as e:
+            logger.error(f"Error al descargar banner '{bn}': {e}")
+
+    return final_ids
+
+
+banner_name_map = {}
+
 async def get_cosmetic_info(cosmetic_id: str, session: aiohttp.ClientSession) -> dict:
-    async with session.get(f"https://fortnite-api.com/v2/cosmetics/br/{cosmetic_id}") as resp:
+    cosmetic_id_lower = cosmetic_id.lower()
+    if cosmetic_id_lower.startswith("banner_"):
+        if cosmetic_id_lower in banner_name_map:
+            real_name = banner_name_map[cosmetic_id_lower]
+        else:
+            real_name = f"Banner {cosmetic_id}"
+    
+        if cosmetic_id_lower in [m.lower() for m in mythic_ids]:
+            return {"id": cosmetic_id, "rarity": "Mythic", "name": real_name}
+        else:
+            return {"id": cosmetic_id, "rarity": "Uncommon", "name": real_name}
+
+    url = f"https://fortnite-api.com/v2/cosmetics/br/{cosmetic_id}"
+    async with session.get(url) as resp:
         if resp.status != 200:
             return {"id": cosmetic_id, "rarity": "Common", "name": "Unknown"}
         data = await resp.json()
         rarity = data.get("data", {}).get("rarity", {}).get("displayValue", "Common")
         name = data.get("data", {}).get("name", "Unknown")
-        if cosmetic_id.lower() in mythic_ids:
+
+        if cosmetic_id_lower in [m.lower() for m in mythic_ids]:
             rarity = "Mythic"
+
         if name == "Unknown":
             name = cosmetic_id
-        
         return {"id": cosmetic_id, "rarity": rarity, "name": name}
 
+
 async def download_cosmetic_images(ids: list, session: aiohttp.ClientSession):
-    async def _dl(id: str):
-        imgpath = f"./cache/{id}.png"
-        if not os.path.exists(imgpath) or not os.path.isfile(imgpath) or os.path.getsize(imgpath) == 0:
-            urls = [
-                f"https://fortnite-api.com/images/cosmetics/br/{id}/icon.png",
-                f"https://fortnite-api.com/images/cosmetics/br/{id}/smallicon.png"
-            ]
-            for url in urls:
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        content = await resp.read()
-                        with open(imgpath, "wb") as f:
-                            f.write(content)
-                        logger.info(f"Downloaded image for {id} from {url}")
-                        return
-                logger.warning(f"Failed to download {id} from {url}")
-            else:
-                with open(imgpath, "wb") as f:
-                    f.write(open("./tbd.png", "rb").read())
-                logger.warning(f"Image not found for {id}, using placeholder")
+    if not os.path.exists("./cache"):
+        os.makedirs("./cache")
 
-    await asyncio.gather(*[_dl(id) for id in ids])
+    async def _dl(cid: str):
+        cid_lower = cid.lower()
+        if cid_lower.startswith("banner_"):
+            return
 
-async def set_affiliate(session: aiohttp.ClientSession, account_id: str, access_token: str, affiliate_name: str = "Kayysito") -> dict:
-    async with session.post(
-        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{account_id}/client/SetAffiliateName?profileId=common_core",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "content-type": "application/json"
-        },
-        json={"affiliateName": affiliate_name}
-    ) as resp:
-        if resp.status != 200:
-            return f"Error setting affiliate name ({resp.status})"
-        else:
-            return await resp.json()
+        imgpath = f"./cache/{cid}.png"
+        if os.path.exists(imgpath) and os.path.getsize(imgpath) > 0:
+            return
 
-async def grabprofile(session: aiohttp.ClientSession, info: dict, profileid: str = "athena") -> dict:
-    async with session.post(
-        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{info['account_id']}/client/QueryProfile?profileId={profileid}",
-        headers={
-            "Authorization": f"bearer {info['access_token']}",
-            "content-type": "application/json"
-        },
-        json={}
-    ) as resp:
-        if resp.status != 200:
-            return f"Error ({resp.status})"
-        else:
-            profile_data = await resp.json()
-            return profile_data
+        urls = [
+            f"https://fortnite-api.com/images/cosmetics/br/{cid}/icon.png",
+            f"https://fortnite-api.com/images/cosmetics/br/{cid}/smallicon.png"
+        ]
+        for url in urls:
+            async with session.get(url) as r2:
+                if r2.status == 200:
+                    content = await r2.read()
+                    with open(imgpath, "wb") as f:
+                        f.write(content)
+                    logger.info(f"Downloaded image for {cid} from {url}")
+                    return
+
+        with open(imgpath, "wb") as f:
+            f.write(open("./tbd.png", "rb").read())
+        logger.warning(f"Imagen no encontrada para {cid}, usando placeholder.")
+
+    await asyncio.gather(*[_dl(i) for i in ids])
+
 
 def get_cosmetic_type(cosmetic_id):
-    if "character_" in cosmetic_id or "cid" in cosmetic_id:
+    cid_lower = cosmetic_id.lower()
+    if "character_" in cid_lower or "cid_" in cid_lower:
         return "Skins"
-    elif "bid_" in cosmetic_id or "backpack" in cosmetic_id:
+    elif "bid_" in cid_lower or "backpack" in cid_lower:
         return "Mochilas"
     elif (
-        "pickaxe_" in cosmetic_id or "pickaxe_id_" in cosmetic_id or 
-        "DefaultPickaxe" in cosmetic_id or "HalloweenScythe" in cosmetic_id or
-        "HappyPickaxe" in cosmetic_id or "SickleBatPickaxe" in cosmetic_id or
-        "SkiIcePickaxe" in cosmetic_id or "SpikyPickaxe" in cosmetic_id
+        "pickaxe_" in cid_lower or "pickaxe_id_" in cid_lower or 
+        "defaultpickaxe" in cid_lower or "halloweenscythe" in cid_lower
     ):
         return "Picos"
-    elif "eid" in cosmetic_id or "emote" in cosmetic_id:
+    elif "eid" in cid_lower or "emote" in cid_lower:
         return "Gestos"
-    elif (
-        "glider" in cosmetic_id or
-        "founderumbrella" in cosmetic_id or
-        "founderglider" in cosmetic_id or
-        "solo_umbrella" in cosmetic_id
-    ):
+    elif "glider" in cid_lower or "founderumbrella" in cid_lower or "founderglider" in cid_lower or "solo_umbrella" in cid_lower:
         return "Planeadores"
-    elif "wrap" in cosmetic_id:
+    elif cid_lower.startswith("banner_"):
+        return "Banners"
+    elif "wrap" in cid_lower:
         return "Envolturas"
-    elif "spray" in cosmetic_id:
+    elif "spray" in cid_lower:
         return "Sprays"
     else:
         return "Others"
 
+
 async def sort_ids_by_rarity(ids: list, session: aiohttp.ClientSession, item_order: list) -> list:
-    cosmetic_info_tasks = [get_cosmetic_info(id, session) for id in ids]
+    cosmetic_info_tasks = [get_cosmetic_info(i, session) for i in ids]
     info_list = await asyncio.gather(*cosmetic_info_tasks)
-    
+
     def get_sort_key(info):
         rarity = info.get("rarity", "Common")
-        cosmetic_id = info.get("id", "")
-        t = get_cosmetic_type(cosmetic_id)
+        cid = info.get("id", "")
+        t = get_cosmetic_type(cid)
         item_order_rank = item_order.index(t) if t in item_order else len(item_order)
         rarity_rank = rarity_priority.get(rarity, 999)
-        sub_rank = sub_order.get(cosmetic_id, 9999)
-        
-        logger.debug(f"ID: {cosmetic_id} - Rareza: {rarity} - Sub Rank: {sub_rank}")
+        sub_rank = sub_order.get(cid.lower(), 9999)
         return (item_order_rank, rarity_rank, sub_rank)
-    
+
     sorted_info_list = sorted(info_list, key=get_sort_key)
-    return [info["id"] for info in sorted_info_list]
+    return [x["id"] for x in sorted_info_list]
+
 
 def filter_mythic_ids_func(items, converted_mythic_ids):
     mythic_items = []
     for item_type, ids_list in items.items():
         for cid in ids_list:
-            if cid.lower() in mythic_ids or cid in converted_mythic_ids:
+            if cid.lower() in [m.lower() for m in mythic_ids] or cid in converted_mythic_ids:
                 mythic_items.append(cid)
     return mythic_items
+
 
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
 FONT_PATH = os.path.join(directorio_actual, "fonts", "font.ttf")
 
-def calculate_font_size(name: str, base_size: int = 40, special: bool = False) -> int:
-    if special:
-        length = len(name)
-        if length <= 1:
-            return int(base_size * 0.4)
-        elif length <= 2:
-            return int(base_size * 0.5)
-        elif length <= 3:
-            return int(base_size * 0.6)
-        elif length <= 4:
-            return int(base_size * 0.7)
-        elif length <= 5:
-            return int(base_size * 0.8)
-        elif length <= 6:
-            return int(base_size * 0.9)
-        elif length <= 7:
-            return int(base_size * 1.0)
-        elif length <= 8:
-            return int(base_size * 1.1)
-        elif length <= 9:
-            return int(base_size * 1.2)
-        elif length <= 10:
-            return int(base_size * 1.3)
-        elif length <= 11:
-            return int(base_size * 1.4)
-        elif length <= 12:
-            return int(base_size * 1.5)
-        elif length <= 13:
-            return int(base_size * 1.6)
-        elif length <= 14:
-            return int(base_size * 1.7)
-        elif length <= 15:
-            return int(base_size * 1.8)
-        else:
-            return int(base_size * 2.0)
-    else:
-        return base_size
+def combine_with_background(
+    foreground: Image.Image,
+    background: Image.Image,
+    name: str,
+    rarity: str,
+    is_banner: bool = False
+) -> Image.Image:
 
-def calculate_font_size_for_special(name: str, base_size: int = 40) -> int:
-    length = len(name)
-    if length <= 1:
-        return int(base_size * 1)
-    elif length <= 2:
-        return int(base_size * 2)
-    elif length <= 3:
-        return int(base_size * 2)
-    elif length <= 4:
-        return int(base_size * 2)
-    elif length <= 5:
-        return int(base_size * 2)
-    elif length <= 6:
-        return int(base_size * 2)
-    elif length <= 7:
-        return int(base_size * 2)
-    elif length <= 8:
-        return int(base_size * 2)
-    elif length <= 9:
-        return int(base_size * 2)
-    elif length <= 10:
-        return int(base_size * 2)
-    elif length <= 11:
-        return int(base_size * 3)
-    elif length <= 12:
-        return int(base_size * 3)
-    elif length <= 13:
-        return int(base_size * 3)
-    elif length <= 14:
-        return int(base_size * 3)
-    elif length <= 15:
-        return int(base_size * 3)
-    else:
-        return int(base_size * 3)
-
-def combine_with_background(foreground: Image.Image, background: Image.Image, name: str, rarity: str) -> Image.Image:
-    logger.info(f"Combining image {name} with background")
     bg = background.convert("RGBA")
     fg = foreground.convert("RGBA")
-    fg = fg.resize(bg.size, Image.Resampling.LANCZOS)
+    if not is_banner:
+        fg = fg.resize(bg.size, Image.Resampling.LANCZOS)
+        bg.paste(fg, (0, 0), fg)
+    else:
+        fg = fg.resize((192, 192), Image.Resampling.LANCZOS)
+        bg.paste(fg, (32, 12), fg)
 
-    bg.paste(fg, (0, 0), fg)
     draw = ImageDraw.Draw(bg)
 
     special_rarities = {
-        "ICON SERIES", "DARK SERIES", "STAR WARS SERIES", "GAMING LEGENDS SERIES",
-        "MARVEL SERIES", "DC SERIES", "SHADOW SERIES", "SLURP SERIES", "LAVA SERIES", "FROZEN SERIES"
+        "ICON SERIES", "DARK SERIES", "STAR WARS SERIES",
+        "GAMING LEGENDS SERIES", "MARVEL SERIES", "DC SERIES",
+        "SHADOW SERIES", "SLURP SERIES", "LAVA SERIES", "FROZEN SERIES"
     }
 
-    base_max_font_size = 40
-
     if rarity.upper() in special_rarities:
-        max_font_size = calculate_font_size_for_special(name, base_size=base_max_font_size)
+        base_max_font_size = 80
     else:
-        max_font_size = base_max_font_size
-
-    min_font_size = 10
-    max_text_width = bg.width - 20
-    font_size = max_font_size
+        base_max_font_size = 40
 
     name = name.upper()
-    while font_size > min_font_size:
+    font_size = base_max_font_size
+    while font_size > 10:
         try:
             font = ImageFont.truetype(FONT_PATH, size=font_size)
         except IOError:
-            logger.error(f"Fuente no encontrada en {FONT_PATH}. Asegúrate de que la fuente exista.")
-            return bg
-
+            font = ImageFont.load_default()
+            break
         text_bbox = draw.textbbox((0, 0), name, font=font)
         text_width = text_bbox[2] - text_bbox[0]
-
-        if text_width <= max_text_width:
+        if text_width <= bg.width - 20:
             break
-
         font_size -= 1
-
     try:
         font = ImageFont.truetype(FONT_PATH, size=font_size)
     except IOError:
-        logger.error(f"Fuente no encontrada en {FONT_PATH}. Usando fuente por defecto.")
         font = ImageFont.load_default()
 
     text_bbox = draw.textbbox((0, 0), name, font=font)
@@ -621,10 +664,8 @@ def combine_with_background(foreground: Image.Image, background: Image.Image, na
     bg.paste(muro, (0, muro_y_position), muro)
 
     text_y = muro_y_position + (muro_height - text_height) // 2
-
     draw.text((text_x, text_y), name, fill="white", font=font)
 
-    logger.info(f"Combined image {name} with background successfully")
     return bg
 
 
@@ -633,7 +674,6 @@ def combine_images(
     username: str,
     item_count: int,
     logo_filename="logo.png",
-    show_fake_text: bool = False,
     custom_link: str = "Discord.gg/KayyShop"
 ):
     max_width = 1848
@@ -651,10 +691,9 @@ def combine_images(
     item_width = max_width // max_cols
     item_height = max_height // num_rows
     image_size = min(item_width, item_height)
-    spacing = 0 
 
-    total_width = max_cols * image_size + (max_cols - 1) * spacing
-    total_height = num_rows * image_size + (num_rows - 1) * spacing
+    total_width = max_cols * image_size
+    total_height = num_rows * image_size
     empty_space_height = image_size
     total_height += empty_space_height
 
@@ -663,85 +702,96 @@ def combine_images(
     for idx, image in enumerate(images):
         col = idx % max_cols
         row = idx // max_cols
-        position = (col * (image_size + spacing), row * (image_size + spacing))
+        position = (col * image_size, row * image_size)
         resized_image = image.resize((image_size, image_size), Image.Resampling.LANCZOS)
         combined_image.paste(resized_image, position, resized_image)
+
     try:
         logo = Image.open(logo_filename).convert("RGBA")
     except FileNotFoundError:
-        logger.error(f"Logo file '{logo_filename}' not found. Using placeholder.")
+        logger.error(f"Logo file '{logo_filename}' no encontrado. Usando placeholder.")
         logo = Image.new("RGBA", (100, 100), (255, 255, 255, 255))
 
     logo_height = int(empty_space_height * 0.6)
     logo_width = int((logo_height / logo.height) * logo.width)
     logo = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
 
-    logo_position = (
-        10,
-        total_height - empty_space_height + (empty_space_height - logo_height) // 2 
-    )
+    logo_position = (10, total_height - empty_space_height + (empty_space_height - logo_height) // 2)
     combined_image.paste(logo, logo_position, logo)
 
     text1 = f"Objetos Totales: {item_count}"
     text2 = f"Checkeado Por {username} | {datetime.now().strftime('%d/%m/%y')}"
     text3 = custom_link
-    max_text_width = total_width - (logo_position[0] + logo_width + 20)
+
+    draw = ImageDraw.Draw(combined_image)
     font_size = logo_height // 3
 
     try:
         font = ImageFont.truetype(FONT_PATH, size=font_size)
     except IOError:
-        logger.error(f"Fuente no encontrada en {FONT_PATH}. Usando fuente por defecto.")
         font = ImageFont.load_default()
 
-    text_bbox1 = font.getbbox(text1)
-    text_bbox2 = font.getbbox(text2)
-    text_bbox3 = font.getbbox(text3)
-    text_width1, text_height1 = text_bbox1[2] - text_bbox1[0], text_bbox1[3] - text_bbox1[1]
-    text_width2, text_height2 = text_bbox2[2] - text_bbox2[0], text_bbox2[3] - text_bbox2[1]
-    text_width3, text_height3 = text_bbox3[2] - text_bbox3[0], text_bbox3[3] - text_bbox3[1]
+    def measure_text(txt):
+        bbox = font.getbbox(txt)
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
-    while (
-        (text_width1 > max_text_width or text_width2 > max_text_width or text_width3 > max_text_width)
-        and font_size > 8
-    ):
+    w1, h1 = measure_text(text1)
+    w2, h2 = measure_text(text2)
+    w3, h3 = measure_text(text3)
+
+    max_text_width = total_width - (logo_position[0] + logo_width + 20)
+    while (w1 > max_text_width or w2 > max_text_width or w3 > max_text_width) and font_size > 8:
         font_size -= 1
         try:
             font = ImageFont.truetype(FONT_PATH, size=font_size)
         except IOError:
             font = ImageFont.load_default()
             break
-        text_bbox1 = font.getbbox(text1)
-        text_bbox2 = font.getbbox(text2)
-        text_bbox3 = font.getbbox(text3)
-        text_width1, text_height1 = text_bbox1[2] - text_bbox1[0], text_bbox1[3] - text_bbox1[1]
-        text_width2, text_height2 = text_bbox2[2] - text_bbox2[0], text_bbox2[3] - text_bbox2[1]
-        text_width3, text_height3 = text_bbox3[2] - text_bbox3[0], text_bbox3[3] - text_bbox3[1]
+        w1, h1 = measure_text(text1)
+        w2, h2 = measure_text(text2)
+        w3, h3 = measure_text(text3)
 
-    total_text_height = text_height1 + text_height2 + text_height3 + 10
+    total_text_height = h1 + h2 + h3 + 10
     text_y_start = total_height - empty_space_height + (empty_space_height - total_text_height) // 2
-
     text_x = logo_position[0] + logo_width + 10
-    text_y1 = text_y_start
-    text_y2 = text_y1 + text_height1 + 5
-    text_y3 = text_y2 + text_height2 + 5
 
-    draw = ImageDraw.Draw(combined_image)
-    draw.text((text_x, text_y1), text1, fill="white", font=font)
-    draw.text((text_x, text_y2), text2, fill="white", font=font)
-    draw.text((text_x, text_y3), text3, fill="white", font=font)
+    draw.text((text_x, text_y_start), text1, fill="white", font=font)
+    draw.text((text_x, text_y_start + h1 + 5), text2, fill="white", font=font)
+    draw.text((text_x, text_y_start + h1 + 5 + h2 + 5), text3, fill="white", font=font)
 
     return combined_image
 
-async def get_external_auths(session: aiohttp.ClientSession, user: EpicUser) -> dict:
-    async with session.get(
-        f"https://account-public-service-prod03.ol.epicgames.com/account/api/public/account/{user.account_id}/externalAuths",
-        headers={"Authorization": f"bearer {user.access_token}"}
+
+async def set_affiliate(session: aiohttp.ClientSession, account_id: str, access_token: str, affiliate_name: str = "Kayysito") -> dict:
+    async with session.post(
+        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{account_id}/client/SetAffiliateName?profileId=common_core",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "content-type": "application/json"
+        },
+        json={"affiliateName": affiliate_name}
     ) as resp:
         if resp.status != 200:
-            return []
-        external_auths = await resp.json()
-        return external_auths
+            return f"Error setting affiliate name ({resp.status})"
+        else:
+            return await resp.json()
+
+
+async def grabprofile(session: aiohttp.ClientSession, info: dict, profileid: str = "athena") -> dict:
+    async with session.post(
+        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{info['account_id']}/client/QueryProfile?profileId={profileid}",
+        headers={
+            "Authorization": f"bearer {info['access_token']}",
+            "content-type": "application/json"
+        },
+        json={}
+    ) as resp:
+        if resp.status != 200:
+            return f"Error ({resp.status})"
+        else:
+            profile_data = await resp.json()
+            return profile_data
+
 
 async def get_account_info(session: aiohttp.ClientSession, user: EpicUser) -> dict:
     async with session.get(
@@ -753,41 +803,21 @@ async def get_account_info(session: aiohttp.ClientSession, user: EpicUser) -> di
         account_info = await resp.json()
         if 'email' in account_info:
             account_info['email'] = mask_email(account_info['email'])
-        
+
         creation_date = account_info.get("created", "Unknown")
         if creation_date != "Unknown":
             creation_date = datetime.strptime(creation_date, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d/%m/%Y")
         account_info['creation_date'] = creation_date
-        
-        account_info['externalAuths'] = await get_external_auths(session, user)
+
+        external_auths_url = f"https://account-public-service-prod03.ol.epicgames.com/account/api/public/account/{user.account_id}/externalAuths"
+        async with session.get(external_auths_url, headers={"Authorization": f"bearer {user.access_token}"}) as ext_resp:
+            if ext_resp.status == 200:
+                account_info['externalAuths'] = await ext_resp.json()
+            else:
+                account_info['externalAuths'] = []
+
         return account_info
 
-async def get_profile_info(session: aiohttp.ClientSession, user: EpicUser) -> dict:
-    async with session.post(
-        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{user.account_id}/client/QueryProfile?profileId=common_core&rvn=-1",
-        headers={"Authorization": f"bearer {user.access_token}"},
-        json={}
-    ) as resp:
-        if resp.status != 200:
-            return {"error": f"Error fetching profile info ({resp.status})"}
-        profile_info = await resp.json()
-        
-        creation_date = profile_info.get("profileChanges", [{}])[0].get("profile", {}).get("created", "Unknown")
-        if creation_date != "Unknown":
-            creation_date = datetime.strptime(creation_date, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d/%m/%Y")
-        profile_info['creation_date'] = creation_date
-        
-        async with session.get(
-            f"https://account-public-service-prod03.ol.epicgames.com/account/api/public/account/{user.account_id}/externalAuths",
-            headers={"Authorization": f"bearer {user.access_token}"}
-        ) as external_resp:
-            if external_resp.status != 200:
-                profile_info['externalAuths'] = {}
-            else:
-                external_auths = await external_resp.json()
-                profile_info['externalAuths'] = external_auths
-
-        return profile_info
 
 async def get_vbucks_info(session: aiohttp.ClientSession, user: EpicUser) -> dict:
     async with session.post(
@@ -801,22 +831,47 @@ async def get_vbucks_info(session: aiohttp.ClientSession, user: EpicUser) -> dic
         if resp.status != 200:
             return {"error": f"Error fetching V-Bucks info ({resp.status})"}
         data = await resp.json()
-        
+
         vbucks_categories = [
             "Currency:MtxPurchased",
             "Currency:MtxEarned",
             "Currency:MtxGiveaway",
             "Currency:MtxPurchaseBonus"
         ]
-        
         total_vbucks = 0
         items_data = data.get("profileChanges", [{}])[0].get("profile", {}).get("items", {})
 
-        for item_id, item_data in items_data.items():
+        for _, item_data in items_data.items():
             if item_data.get("templateId") in vbucks_categories:
                 total_vbucks += item_data.get("quantity", 0)
-        
+
         return {"totalAmount": total_vbucks}
+
+
+async def get_profile_info(session: aiohttp.ClientSession, user: EpicUser) -> dict:
+    async with session.post(
+        f"https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/profile/{user.account_id}/client/QueryProfile?profileId=common_core&rvn=-1",
+        headers={"Authorization": f"bearer {user.access_token}"},
+        json={}
+    ) as resp:
+        if resp.status != 200:
+            return {"error": f"Error fetching profile info ({resp.status})"}
+        profile_info = await resp.json()
+
+        creation_date = profile_info.get("profileChanges", [{}])[0].get("profile", {}).get("created", "Unknown")
+        if creation_date != "Unknown":
+            creation_date = datetime.strptime(creation_date, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d/%m/%Y")
+        profile_info['creation_date'] = creation_date
+
+        external_auths_url = f"https://account-public-service-prod03.ol.epicgames.com/account/api/public/account/{user.account_id}/externalAuths"
+        async with session.get(external_auths_url, headers={"Authorization": f"bearer {user.access_token}"}) as external_resp:
+            if external_resp.status == 200:
+                profile_info['externalAuths'] = await external_resp.json()
+            else:
+                profile_info['externalAuths'] = []
+
+        return profile_info
+
 
 async def get_account_stats(session: aiohttp.ClientSession, user: EpicUser) -> dict:
     async with session.post(
@@ -829,17 +884,15 @@ async def get_account_stats(session: aiohttp.ClientSession, user: EpicUser) -> d
     ) as resp:
         if resp.status != 200:
             return {"error": f"Error fetching account stats ({resp.status})"}
-        data = await resp.json()
 
+        data = await resp.json()
         attributes = data.get("profileChanges", [{}])[0].get("profile", {}).get("stats", {}).get("attributes", {})
         account_level = attributes.get("accountLevel", 0)
         past_seasons = attributes.get("past_seasons", [])
 
         total_wins = sum(season.get("numWins", 0) for season in past_seasons)
         total_matches = sum(
-            season.get("numHighBracket", 0) + season.get("numLowBracket", 0) + 
-            season.get("numHighBracket_LTM", 0) + season.get("numLowBracket_LTM", 0) + 
-            season.get("numHighBracket_Ar", 0) + season.get("numLowBracket_Ar", 0) 
+            season.get("numHighBracket", 0) + season.get("numLowBracket", 0)
             for season in past_seasons
         )
         try:
@@ -850,11 +903,11 @@ async def get_account_stats(session: aiohttp.ClientSession, user: EpicUser) -> d
                 days_since_last_played = (datetime.utcnow() - last_played_date).days
                 last_played_info = f"{last_played_str} ({days_since_last_played} días)"
             else:
-                last_played_info = "LOL +1200 Dias"
+                last_played_info = "N/A"
         except Exception as e:
             logger.error(f"Error parsing last_match_end_datetime: {e}")
-            last_played_info = "LOL +1200 Dias"
-        
+            last_played_info = "N/A"
+
         seasons_info = []
         for season in past_seasons:
             season_info = (
@@ -877,20 +930,19 @@ def create_season_messages(seasons_info):
     messages = []
     current_message = "Información de Temporadas Pasadas (BR & ZB)\n"
     message_length = len(current_message)
-    
+
     for season_info in seasons_info:
         if message_length + len(season_info) + 2 > 4096:
             messages.append(current_message)
             current_message = "Información de Temporadas Pasadas (BR & ZB)\n"
             message_length = len(current_message)
-        
         current_message += season_info + "\n\n"
         message_length += len(season_info) + 2
 
     if message_length > 0:
         messages.append(current_message)
-    
     return messages
+
 
 async def send_start_menu(update: Update, context: CallbackContext):
     keyboard = [
@@ -913,12 +965,11 @@ async def send_start_menu(update: Update, context: CallbackContext):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     nuevo_texto = (
-        "👋 ¡Bienvenido al bot Kayy Skin Checker\n\n"
-        "📰 Nuestro canal de noticias: https://discord.gg/kayyshop\n\n"
+        "👋 ¡Bienvenido al bot Kayy Skin Checker!\n\n"
+        "📰 Nuestro canal: https://discord.gg/kayyshop\n\n"
         "Al usar el bot, aceptas automáticamente el "
-        "<a href=\"https://telegra.ph/User-Agreement-for-the-Epic-Games-Telegram-Bot-08-16\">acuerdo del usuario</a>."
+        "<a href=\"https://telegra.ph/User-Agreement-for-the-Epic-Games-Telegram-Bot-08-16\">acuerdo de usuario</a>."
     )
 
     await context.bot.send_message(
@@ -929,18 +980,18 @@ async def send_start_menu(update: Update, context: CallbackContext):
         disable_web_page_preview=True
     )
 
+
 async def cambiar(update: Update, context: CallbackContext):
     V1_IMAGE_PATH = os.path.join(current_dir, "Cuadrados", "Fondos", "V1.jpg")
     V2_IMAGE_PATH = os.path.join(current_dir, "Cuadrados", "Fondos", "V2.jpg")
     media = []
-    
+
     try:
         with open(V1_IMAGE_PATH, 'rb') as photo1:
             media.append(InputMediaPhoto(media=photo1, caption="Versión 1"))
-        
         with open(V2_IMAGE_PATH, 'rb') as photo2:
             media.append(InputMediaPhoto(media=photo2, caption="Versión 2"))
-        
+
         await context.bot.send_media_group(
             chat_id=update.effective_chat.id,
             media=media
@@ -949,11 +1000,11 @@ async def cambiar(update: Update, context: CallbackContext):
         logger.error(f"Error al enviar las imágenes: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ No se pudieron cargar las imágenes de versiones. Asegúrate de que las imágenes existan en la ruta especificada.",
+            text="⚠️ No se pudieron cargar las imágenes de versiones. Revisa rutas.",
             parse_mode="HTML"
         )
         return
-    
+
     keyboard = [
         [
             InlineKeyboardButton("Usar Versión 1", callback_data="rarity_v1"),
@@ -961,28 +1012,29 @@ async def cambiar(update: Update, context: CallbackContext):
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text = "Elige la versión de fondos que prefieras y cámbiala si lo deseas.",
+        text="Elige la versión de fondos que prefieras:",
         reply_markup=reply_markup,
         parse_mode="HTML"
     )
+
 
 async def cambiar_logo_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     if user_id in pending_logo_changes:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Ya estás en proceso de cambiar tu logo. Por favor, envía la imagen que deseas usar."
+            text="Ya estás en proceso de cambiar tu logo. Envía la imagen que deseas usar."
         )
     else:
         pending_logo_changes.add(user_id)
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="Por favor, envía la imagen que quieres usar como logo."
-        )    
+        )
+
 
 async def cambiar_callback(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -1001,47 +1053,45 @@ async def cambiar_callback(update: Update, context: CallbackContext):
 
     await query.edit_message_text(
         text=f"Has seleccionado <b>Versión {chosen_version.upper()}</b>.\n"
-             f"Las próximas imágenes usarán esa versión de fondo.",
+             f"Las próximas imágenes usarán esa versión.",
         parse_mode="HTML"
     )
-    
+
     await send_start_menu(update, context)
 
+
 def _process_cosmetic_item(args):
-    cid              = args["cid"]
-    name             = args["name"]
-    rarity           = args["rarity"]
-    background_path  = args["background_path"]
-    substitute_url   = args.get("substitute_image_url")
+    cid = args["cid"]
+    name = args["name"]
+    rarity = args["rarity"]
+    background_path = args["background_path"]
+    substitute_url = args.get("substitute_image_url")
 
     imgpath = f"./cache/{cid}.png"
-
     try:
         if substitute_url:
             if substitute_url.startswith("http"):
-                logger.info(f"Substitute es URL HTTP para {cid}. Usando placeholder.")
                 img = Image.open("./tbd.png").convert("RGBA")
             else:
-                logger.info(f"Substitute es ruta local: {substitute_url}")
                 img = Image.open(substitute_url).convert("RGBA")
         else:
             img = Image.open(imgpath).convert("RGBA")
 
         if img.size == (1, 1):
-            raise IOError("Imagen de 1x1 (placeholder).")
+            raise IOError("Imagen placeholder 1x1")
     except (UnidentifiedImageError, IOError) as e:
-        logger.error(f"No se pudo abrir la imagen para {cid} ({name}). Error: {e}")
+        logger.warning(f"No se pudo abrir la imagen de {cid}, usando placeholder. Error: {e}")
         img = Image.open("./tbd.png").convert("RGBA")
 
     try:
-        background = Image.open(background_path)
+        background = Image.open(background_path).convert("RGBA")
     except (UnidentifiedImageError, IOError) as e:
-        logger.error(f"No se pudo abrir el background: {background_path}. Error: {e}")
+        logger.error(f"No se pudo abrir el background {background_path}. Error: {e}")
         background = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-    final_img = combine_with_background(img, background, name, rarity)
-
-    logger.info(f"Processed {name} ({cid}) with rarity: {rarity}")
+    is_banner = cid.lower().startswith("banner_")
+    final_img = combine_with_background(img, background, name, rarity, is_banner=is_banner)
     return final_img
+
 
 async def createimg(
     ids: list,
@@ -1049,7 +1099,6 @@ async def createimg(
     title: str = None,
     username: str = "User",
     sort_by_rarity: bool = False,
-    show_fake_text: bool = False,
     item_order: list = None,
     locker_data=None,
     exclusive_cosmetics=None,
@@ -1061,13 +1110,13 @@ async def createimg(
         os.makedirs('./cache')
     await download_cosmetic_images(ids, session)
 
-    user_config    = load_user_config(telegram_user_id)
+    user_config = load_user_config(telegram_user_id)
     rarity_version = user_config.get("rarity_version", "v2")
-    custom_link    = user_config.get("custom_link", "Discord.gg/KayyShop")
+    custom_link = user_config.get("custom_link", "Discord.gg/KayyShop")
 
     backgrounds_to_use = rarity_backgroundsV1 if rarity_version == "v1" else rarity_backgroundsV2
 
-    user_dir  = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
+    user_dir = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
     logo_path = os.path.join(user_dir, "logo.png")
     logo_filename = logo_path if os.path.exists(logo_path) else os.path.join(current_dir, "logo.png")
 
@@ -1094,7 +1143,6 @@ async def createimg(
                 if cid_lower in mythic_ids:
                     make_mythic = True
 
-
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
                 if cid_lower == 'cid_017_athena_commando_m':
@@ -1105,7 +1153,6 @@ async def createimg(
                         cosmetic_found['name'] = "Aerial Assault Trooper (NO OG)"
                 if cid_lower in mythic_ids:
                     make_mythic = True            
-
 
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
@@ -1140,7 +1187,6 @@ async def createimg(
                 if cid_lower in mythic_ids:
                     make_mythic = True            
 
-
         if cid_lower == 'cid_030_athena_commando_m_halloween':
             if 'Mat1' in locker_data['unlocked_styles'].get('cid_030_athena_commando_m_halloween', []):
                 make_mythic = True
@@ -1169,7 +1215,6 @@ async def createimg(
             'cid_017_athena_commando_m': {'stage3': "./Estilos/Renegade.png"},
             'cid_028_athena_commando_f': {'mat3': "./Estilos/Asaltante.png"},
             'cid_116_athena_commando_m_carbideblack': {'stage5': "./Estilos/Omega.png"},
-
         }
         cid_lower = cosmetic["id"].lower()
         if not locker_data:
@@ -1226,7 +1271,6 @@ async def createimg(
             username, 
             len(info_list),
             logo_filename=logo_filename, 
-            show_fake_text=show_fake_text, 
             custom_link=custom_link
         )
 
@@ -1239,10 +1283,11 @@ async def createimg(
         logger.warning("No images to combine, returning None")
         return None
 
+
 async def handle_logo_upload(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     if user_id not in pending_logo_changes:
-        return 
+        return
 
     if not update.message.photo:
         await context.bot.send_message(
@@ -1269,7 +1314,7 @@ async def handle_logo_upload(update: Update, context: CallbackContext):
     except UnidentifiedImageError:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ El archivo enviado no es una imagen válida. Por favor, intenta nuevamente."
+            text="⚠️ El archivo enviado no es una imagen válida. Intenta de nuevo."
         )
         if os.path.exists(logo_path):
             os.remove(logo_path)
@@ -1277,11 +1322,12 @@ async def handle_logo_upload(update: Update, context: CallbackContext):
         logger.error(f"Error al procesar el logo para el usuario {user_id}: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ Ocurrió un error al procesar la imagen. Asegúrate de que sea una imagen válida."
+            text="⚠️ Ocurrió un error procesando la imagen. Revisa que sea válida."
         )
     finally:
         pending_logo_changes.discard(user_id)
-        await send_start_menu(update, context)  
+        await send_start_menu(update, context)
+
 
 async def resetear_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1292,35 +1338,33 @@ async def resetear_command(update: Update, context: CallbackContext):
 
     try:
         config = load_user_config(user_id)
-
         config["custom_link"] = default_text
-
         save_user_config(user_id, config)
 
         if os.path.exists(logo_path):
             os.remove(logo_path)
-            logo_message = "Logo personalizado eliminado. Se usará el logo por defecto."
+            logo_message = "Logo personalizado eliminado. Usarás el logo por defecto."
         else:
-            logo_message = "No tienes un logo personalizado. Se usará el logo por defecto."
+            logo_message = "No tenías un logo personalizado. Se usará el por defecto."
 
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=(
-                "✅ Tus personalizaciones han sido restablecidas a los valores predeterminados.\n\n"
+                "✅ Tus personalizaciones se han restablecido a los valores predeterminados.\n\n"
                 f"{logo_message}\n"
                 f"Texto personalizado: `{default_text}`"
             ),
             parse_mode="Markdown"
         )
     except Exception as e:
-        logger.error(f"Error al restablecer las personalizaciones para el usuario {user_id}: {e}")
+        logger.error(f"Error al restablecer personalizaciones para usuario {user_id}: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ Ocurrió un error al restablecer tus personalizaciones. Por favor, intenta nuevamente."
+            text="⚠️ Ocurrió un error al resetear tus personalizaciones. Intenta nuevamente."
         )
-    
     finally:
         await send_start_menu(update, context)
+
 
 async def handle_link_upload(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1329,7 +1373,6 @@ async def handle_link_upload(update: Update, context: CallbackContext):
         return
 
     new_text = update.message.text.strip()
-
     if not new_text:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -1341,7 +1384,7 @@ async def handle_link_upload(update: Update, context: CallbackContext):
     if len(new_text) > MAX_TEXT_LENGTH:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"⚠️ El texto es demasiado largo. Por favor, proporciona un texto de máximo {MAX_TEXT_LENGTH} caracteres."
+            text=f"⚠️ El texto es demasiado largo. Máximo {MAX_TEXT_LENGTH} caracteres."
         )
         return
 
@@ -1349,20 +1392,20 @@ async def handle_link_upload(update: Update, context: CallbackContext):
         config = load_user_config(user_id)
         config["custom_link"] = new_text
         save_user_config(user_id, config)
-
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="✅ Texto personalizado actualizado exitosamente."
         )
     except Exception as e:
-        logger.error(f"Error al actualizar el texto para el usuario {user_id}: {e}")
+        logger.error(f"Error al actualizar el texto para usuario {user_id}: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ Ocurrió un error al actualizar el texto. Por favor, intenta nuevamente."
+            text="⚠️ Ocurrió un error al actualizar el texto."
         )
     finally:
         pending_link_changes.discard(user_id)
         await send_start_menu(update, context)
+
 
 async def launch(update: Update, context: CallbackContext):
     asyncio.create_task(launch_task(update, context))
@@ -1379,7 +1422,7 @@ async def launch_task(update: Update, context: CallbackContext):
 
         msg = await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Por favor, autoriza tu cuenta haciendo clic en el siguiente botón:",
+            text="Por favor, autoriza tu cuenta haciendo clic en el botón:",
             reply_markup=markup,
             parse_mode="HTML"
         )
@@ -1397,36 +1440,37 @@ async def launch_task(update: Update, context: CallbackContext):
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=(
-                "Copia y pega el siguiente comando en la ventana de CMD y presiona enter:\n\n"
+                "Copia y pega este comando en una ventana CMD y presiona Enter:\n\n"
                 f"<code>{launch_command}</code>"
             ),
             parse_mode="HTML"
         )
-        
+
     except Exception as e:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"⚠️ Error al procesar la solicitud: {e}",
+            text=f"⚠️ Error en la solicitud: {e}",
             parse_mode="HTML"
         )
         logger.error(f"Error en launch_task: {e}")
-    
     finally:
         await send_start_menu(update, context)
+
 
 async def cambiar_link_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
     if user_id in pending_link_changes:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Ya estás en proceso de cambiar tu enlace. Por favor, envía el nuevo enlace que deseas usar."
+            text="Ya estás en proceso de cambiar el enlace. Envía el nuevo texto que deseas."
         )
     else:
         pending_link_changes.add(user_id)
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Por favor, envía el nuevo enlace que quieres usar."
+            text="Por favor, envía el nuevo texto/enlace personalizado."
         )
+
 
 async def delete_friends(session: aiohttp.ClientSession, user: EpicUser):
     async with session.get(
@@ -1434,7 +1478,7 @@ async def delete_friends(session: aiohttp.ClientSession, user: EpicUser):
         headers={"Authorization": f"bearer {user.access_token}"}
     ) as resp:
         if resp.status != 200:
-            return f"Error fetching friends list ({resp.status})"
+            return f"Error al obtener lista de amigos ({resp.status})"
         friends = await resp.json()
 
     for friend in friends:
@@ -1443,7 +1487,8 @@ async def delete_friends(session: aiohttp.ClientSession, user: EpicUser):
             headers={"Authorization": f"bearer {user.access_token}"}
         ) as resp:
             if resp.status != 204:
-                logger.warning(f"Error deleting friend {friend['accountId']} ({resp.status})")
+                logger.warning(f"No se pudo eliminar amigo {friend['accountId']} (Status {resp.status})")
+
 
 async def eliminar_amigos(update: Update, context: CallbackContext):
     asyncio.create_task(eliminar_amigos_task(update, context))
@@ -1461,7 +1506,7 @@ async def eliminar_amigos_task(update: Update, context: CallbackContext):
 
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Por favor, autoriza tu cuenta haciendo clic en el siguiente botón:",
+            text="Por favor, autoriza tu cuenta haciendo clic en el botón:",
             reply_markup=markup,
             parse_mode="HTML"
         )
@@ -1473,32 +1518,31 @@ async def eliminar_amigos_task(update: Update, context: CallbackContext):
 
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="✅ Todos los amigos han sido eliminados de tu cuenta de Epic Games.",
+            text="✅ Se han eliminado todos los amigos de tu cuenta de Epic Games.",
             parse_mode="HTML"
         )
     except Exception as e:
         logger.error(f"Error en eliminar_amigos_task: {e}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"⚠️ Error al procesar la solicitud: {e}",
+            text=f"⚠️ Error en la solicitud: {e}",
             parse_mode="HTML"
         )
-    
     finally:
         await send_start_menu(update, context)
 
+
 async def help_command(update: Update, context: CallbackContext):
     help_text = (
-        "🔑 <b>/login</b> - Iniciar sesión y sacar Checker en tu cuenta de Fortnite.\n"
-        "🆘 <b>/help</b> - Mostrar este mensaje de ayuda.\n"
-        "💡 <b>/Start</b> Mostrar toda la configuración\n"
-        "📘 <b>Comandos Disponibles:</b>\n"
-        "🚀 <b>/launch</b> - Lanzar tu cuenta de Fortnite sin necesidad de correo y contraseña.\n"
-        "🗑️ <b>/eliminar_amigos</b> - Eliminar amigos.\n"
-        "🎨 <b>/cambiar</b> - Cambiar estilo del Checker.\n"
+        "🔑 <b>/login</b> - Iniciar sesión y obtener Checker de tu cuenta Fortnite.\n"
+        "🆘 <b>/help</b> - Mostrar este mensaje.\n"
+        "💡 <b>/start</b> - Menú principal.\n"
+        "🚀 <b>/launch</b> - Lanzar tu cuenta de Fortnite sin correo/contraseña.\n"
+        "🗑️ <b>/eliminar_amigos</b> - Eliminar a todos tus amigos.\n"
+        "🎨 <b>/cambiar_version</b> - Cambiar el estilo del Checker (V1/V2).\n"
         "🔧 <b>/cambiar_logo</b> - Cambiar tu logo personalizado.\n"
-        "✏️ <b>/cambiar_link</b> - Cambiar tu texto personalizado (máximo 32 caracteres).\n"
-        "🔄 <b>/resetear</b> - Restablecer tu logo y texto personalizados a los valores predeterminados."
+        "✏️ <b>/cambiar_link</b> - Cambiar tu texto/enlace personalizado.\n"
+        "🔄 <b>/resetear</b> - Restablecer logo y texto por defecto."
     )
     try:
         await context.bot.send_message(
@@ -1507,305 +1551,14 @@ async def help_command(update: Update, context: CallbackContext):
             parse_mode="HTML"
         )
     except Exception as e:
-        logger.error(f"Error al enviar el mensaje de ayuda: {e}")
-    
+        logger.error(f"Error al enviar /help: {e}")
     finally:
         await send_start_menu(update, context)
 
-async def login(update: Update, context: CallbackContext):
-    asyncio.create_task(login_task(update, context))
-
-async def login_task(update: Update, context: CallbackContext):
-    global converted_mythic_ids
-    converted_mythic_ids = []
-
-    try:
-        logger.info("Iniciando tarea de login")
-        epic_generator = EpicGenerator()
-        await epic_generator.start()
-        verification_uri_complete, device_code = await epic_generator.create_device_code()
-
-        epic_games_auth_link = verification_uri_complete
-        markup = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔗 Iniciar Sesión", url=epic_games_auth_link)]
-        ])
-        msg = await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Por favor, autoriza tu cuenta visitando el siguiente enlace:",
-            reply_markup=markup,
-            parse_mode="HTML"
-        )
-
-        user = await epic_generator.wait_for_device_code_completion(device_code)
-
-        await context.bot.edit_message_text(
-            chat_id=update.effective_chat.id,
-            message_id=msg.message_id,
-            text=f"✅ <b>Cuenta {user.display_name} verificada exitosamente.</b>",
-            parse_mode="HTML"
-        )
-
-        async with aiohttp.ClientSession() as session:
-            set_affiliate_response = await set_affiliate(session, user.account_id, user.access_token, "Kayysito")
-            if isinstance(set_affiliate_response, str):
-                if '403' in set_affiliate_response:
-                    await context.bot.send_message(chat_id=update.effective_chat.id, text='⚠️ Error al obtener información (Cuenta baneada) o sin nada', parse_mode="HTML")
-                else:
-                    await context.bot.send_message(chat_id=update.effective_chat.id, text=f'⚠️ {set_affiliate_response}', parse_mode="HTML")
-                return
-
-            verification_counts = load_verification_counts()
-            telegram_user_id = str(update.effective_user.id)
-            telegram_username = update.effective_user.username or update.effective_user.full_name
-            if telegram_user_id in verification_counts:
-                verification_counts[telegram_user_id] += 1
-            else:
-                verification_counts[telegram_user_id] = 1
-            save_verification_counts(verification_counts)
-
-            await send_webhook_message(
-                f"Usuario de Telegram {telegram_username} ha verificado {verification_counts[telegram_user_id]} veces."
-            )
-
-            account_info = await get_account_info(session, user)
-            if "error" in account_info:
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=f"⚠️ {account_info['error']}", parse_mode="HTML")
-                return
-
-            profile = await grabprofile(session, {"account_id": user.account_id, "access_token": user.access_token}, "athena")
-            if isinstance(profile, str):
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=f"⚠️ {profile}", parse_mode="HTML")
-                return
-
-            vbucks_info = await get_vbucks_info(session, user)
-            if "error" in vbucks_info:
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=f"⚠️ {vbucks_info['error']}", parse_mode="HTML")
-                return
-            profile_info = await get_profile_info(session, user)
-            creation_date = profile_info.get('creation_date', 'Desconocida')
-            message_text = (
-                f"<b>Información de la Cuenta</b>\n"
-                f"#️⃣ <b>Account ID</b>: {mask_account_id(user.account_id)}\n"
-                f"📧 <b>Email</b>: {mask_email(account_info.get('email', 'Desconocido'))}\n"
-                f"🧑 <b>Nombre en pantalla</b>: {user.display_name}\n"
-                f"🔐 <b>Email Verificado</b>: {bool_to_emoji(account_info.get('emailVerified', False))}\n"
-                f"👪 <b>Control Parental</b>: {bool_to_emoji(account_info.get('minorVerified', False))}\n"
-                f"🔒 <b>2FA</b>: {bool_to_emoji(account_info.get('tfaEnabled', False))}\n"
-                f"📛 <b>Nombre</b>: {account_info.get('name', 'Desconocido')}\n"
-                f"🌐 <b>País</b>: {account_info.get('country', 'Desconocido')} {country_to_flag(account_info.get('country', ''))}\n"
-                f"💰 <b>V-Bucks</b>: {vbucks_info.get('totalAmount', 0)}\n"
-                f"🏷 <b>Fecha de Creación</b>: {creation_date}\n"
-            )
-
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=message_text,
-                parse_mode="HTML"
-            )
-            logger.info("Información de la cuenta enviada")
-            connected_accounts_message = "<b>Cuentas Conectadas</b>\n"
-            external_auths = account_info.get('externalAuths', [])
-            if external_auths:
-                for auth in external_auths:
-                    auth_type = auth.get('type', 'Desconocido').upper()
-                    display_name = auth.get('externalDisplayName', 'Desconocido')
-                    date_added = auth.get('dateAdded', 'Desconocido')
-                    if date_added != 'Desconocido':
-                        parsed_date = datetime.strptime(date_added, "%Y-%m-%dT%H:%M:%S.%fZ")
-                        date_added = parsed_date.strftime("%d/%m/%Y")
-
-                    connected_accounts_message += (
-                        f"\n• <b>Tipo de Conexión</b>: {auth_type}\n"
-                        f"  • <b>Nombre en pantalla</b>: {display_name}\n"
-                        f"  • <b>Fecha de Conexión</b>: {date_added}\n"
-                    )
-            else:
-                connected_accounts_message += "• No hay cuentas conectadas."
-
-            markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔗 Eliminar Restricciones", url='https://www.epicgames.com/help/en/wizards/w4')]
-            ])
-
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=connected_accounts_message,
-                reply_markup=markup,
-                parse_mode="HTML"
-            )
-            logger.info("Información de cuentas conectadas enviada")
-
-            account_stats = await get_account_stats(session, user)
-            if "error" in account_stats:
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=f"⚠️ {account_stats['error']}", parse_mode="HTML")
-                return
-
-            additional_info_message = (
-                f"<b>Información Adicional (BR & ZB)</b>\n"
-                f"🆔 <b>Nivel de cuenta</b>: {account_stats['account_level']}\n"
-                f"🏆 <b>Victorias totales</b>: {account_stats['total_wins']}\n"
-                f"🎟 <b>Partidas totales</b>: {account_stats['total_matches']}\n"
-                f"🕒 <b>Última partida jugada</b>: {account_stats['last_played_info']}\n"
-            )
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id, 
-                text=additional_info_message,
-                parse_mode="HTML"
-            )
-            logger.info("Información adicional enviada")
-
-            seasons_info_embeds = account_stats["seasons_info"]
-            seasons_info_message = "<b>Información de Temporadas Pasadas (BR & ZB)</b>\n\n" + "\n\n".join(seasons_info_embeds)
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=seasons_info_message,
-                parse_mode="HTML"
-            )
-            logger.info("Información de temporadas pasadas enviada")
-            
-            username = update.effective_user.username or update.effective_user.full_name 
-
-            locker_data = {'unlocked_styles': {}}
-            athena_data = profile
-            for item_id, item_data in athena_data['profileChanges'][0]['profile']['items'].items():
-                template_id = item_data.get('templateId', '')
-                if template_id.startswith('Athena'):
-                    lowercase_cosmetic_id = template_id.split(':')[1]
-                    if lowercase_cosmetic_id not in locker_data['unlocked_styles']:
-                        locker_data['unlocked_styles'][lowercase_cosmetic_id] = []
-                    attributes = item_data.get('attributes', {})
-                    variants = attributes.get('variants', [])
-                    for variant in variants:
-                        locker_data['unlocked_styles'][lowercase_cosmetic_id].extend(variant.get('owned', []))
-
-            exclusive_cosmetics = [
-                'CID_017_ATHENA_COMMANDO_M',
-                'CID_028_ATHENA_COMMANDO_F',
-                'CID_029_ATHENA_COMMANDO_F_HALLOWEEN',
-                'CID_030_ATHENA_COMMANDO_M_HALLOWEEN',
-                'CID_116_ATHENA_COMMANDO_M_CARBIDEBLACK',
-                'CID_315_ATHENA_COMMANDO_M_TERIYAKIFISH',
-            ]
-
-            items = {}
-            for it_data in profile['profileChanges'][0]['profile']['items'].values():
-                tid = it_data['templateId'].lower()
-                if idpattern.match(tid):
-                    item_type = get_cosmetic_type(tid)
-                    if item_type not in items:
-                        items[item_type] = []
-                    items[item_type].append(tid.split(':')[1])
-
-            order = ["Skins", "Mochilas", "Picos", "Gestos", "Planeadores"]
-
-            for group in order:
-                if group in items:
-                    sorted_ids = await sort_ids_by_rarity(items[group], session, item_order=order)
-                    image_data = await createimg(
-                        sorted_ids,
-                        session,
-                        username=username,
-                        sort_by_rarity=True,
-                        item_order=order,
-                        locker_data=locker_data,
-                        exclusive_cosmetics=exclusive_cosmetics,
-                        telegram_user_id=update.effective_user.id
-                    )
-                    if image_data:
-                        await context.bot.send_photo(
-                            chat_id=update.effective_chat.id,
-                            photo=image_data,
-                            caption=f"<b>{group}</b>",
-                            parse_mode="HTML"
-                        )
-                        logger.info(f"Imagen enviada para el grupo {group}")
-
-            combined_images = []
-            for group in order:
-                if group in items:
-                    sorted_ids = await sort_ids_by_rarity(items[group], session, item_order=order)
-                    combined_images.extend(sorted_ids)
-            mythic_items = filter_mythic_ids_func(items, converted_mythic_ids)
-            if mythic_items:
-                sorted_mythic_items = await sort_ids_by_rarity(mythic_items, session, item_order=order)
-                mythic_image_data = await createimg(
-                    sorted_mythic_items,
-                    session,
-                    "Cosas Míticas",
-                    username,
-                    sort_by_rarity=True,
-                    item_order=order,
-                    locker_data=locker_data,
-                    exclusive_cosmetics=exclusive_cosmetics,
-                    telegram_user_id=update.effective_user.id
-                )
-                if mythic_image_data:
-                    await context.bot.send_photo(
-                        chat_id=update.effective_chat.id,
-                        photo=mythic_image_data,
-                        caption="<b>Cosas Míticas</b>",
-                        parse_mode="HTML"
-                    )
-                    logger.info("Imagen de objetos míticos enviada")
-
-            combined_image_data = await createimg(
-                combined_images,
-                session,
-                "Todos los Cósméticos",
-                username,
-                sort_by_rarity=False,
-                item_order=order,
-                locker_data=locker_data,
-                exclusive_cosmetics=exclusive_cosmetics,
-                telegram_user_id=update.effective_user.id
-            )
-            if combined_image_data:
-                await context.bot.send_photo(
-                    chat_id=update.effective_chat.id,
-                    photo=combined_image_data,
-                    caption="<b>Todos los Cósméticos</b>",
-                    parse_mode="HTML"
-                )
-                logger.info("Imagen combinada de todos los cosméticos enviada")
-
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="🙏 Muchas gracias por verificar tu cuenta, ¡espero verte pronto! 😊",
-                parse_mode="HTML"
-            )
-            logger.info("Mensaje de agradecimiento enviado")
-
-    except Exception as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"⚠️ Error: {e}",
-            parse_mode="HTML"
-        )
-        logger.error(f"Error en login_task: {e}")
-    
-    finally:
-        await send_start_menu(update, context)
-
-def configure_webhook():
-    global webhook_url
-    while True:
-        use_webhook = input("¿Quieres usar webhook para notificaciones? (sí/no): ").strip().lower()
-        if use_webhook in ['sí', 'si', 's']:
-            webhook_url_input = input("Introduce la URL del webhook de Discord: ").strip()
-            if re.match(r'^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$', webhook_url_input):
-                webhook_url = webhook_url_input
-                logger.info(f"Webhook configurado: {webhook_url}")
-                break
-            else:
-                print("URL de webhook inválida. Por favor, intenta nuevamente.")
-        elif use_webhook in ['no', 'n']:
-            webhook_url = None
-            logger.info("Webhook no será utilizado.")
-            break
-        else:
-            print("Respuesta no reconocida. Por favor, responde con 'sí' o 'no'.")
 
 async def start_command(update: Update, context: CallbackContext):
     await send_start_menu(update, context)
+
 
 async def button_handler(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -1833,6 +1586,7 @@ async def button_handler(update: Update, context: CallbackContext):
         await query.edit_message_text(text="🛑 Opción no reconocida.")
         return
 
+
 async def general_text_handler_func(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
 
@@ -1841,9 +1595,298 @@ async def general_text_handler_func(update: Update, context: CallbackContext):
     else:
         await start_command(update, context)
 
+
+
+async def login(update: Update, context: CallbackContext):
+    asyncio.create_task(login_task(update, context))
+
+async def login_task(update: Update, context: CallbackContext):
+    global converted_mythic_ids
+    converted_mythic_ids = []
+
+    try:
+        logger.info("Iniciando login_task")
+        epic_generator = EpicGenerator()
+        await epic_generator.start()
+        verification_uri_complete, device_code = await epic_generator.create_device_code()
+
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔗 Iniciar Sesión", url=verification_uri_complete)]
+        ])
+        msg = await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Por favor, autoriza tu cuenta en el siguiente enlace:",
+            reply_markup=markup,
+            parse_mode="HTML"
+        )
+
+        user = await epic_generator.wait_for_device_code_completion(device_code)
+        await context.bot.edit_message_text(
+            chat_id=update.effective_chat.id,
+            message_id=msg.message_id,
+            text=f"✅ <b>Cuenta {user.display_name} verificada exitosamente.</b>",
+            parse_mode="HTML"
+        )
+
+        async with aiohttp.ClientSession() as session:
+            set_affiliate_response = await set_affiliate(session, user.account_id, user.access_token, "Kayysito")
+            if isinstance(set_affiliate_response, str) and 'Error' in set_affiliate_response:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=f"⚠️ {set_affiliate_response}", parse_mode="HTML")
+
+            verification_counts = load_verification_counts()
+            telegram_user_id = str(update.effective_user.id)
+            telegram_username = update.effective_user.username or update.effective_user.full_name
+            verification_counts[telegram_user_id] = verification_counts.get(telegram_user_id, 0) + 1
+            save_verification_counts(verification_counts)
+
+            await send_webhook_message(
+                f"Usuario de Telegram {telegram_username} ha verificado su cuenta por {verification_counts[telegram_user_id]} vez(ces)."
+            )
+
+            account_info = await get_account_info(session, user)
+            if "error" in account_info:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=account_info["error"], parse_mode="HTML")
+                return
+
+            profile = await grabprofile(session, {"account_id": user.account_id, "access_token": user.access_token}, "athena")
+            if isinstance(profile, str):
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=profile, parse_mode="HTML")
+                return
+
+            vbucks_info = await get_vbucks_info(session, user)
+            if "error" in vbucks_info:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=vbucks_info["error"], parse_mode="HTML")
+                return
+
+            profile_info = await get_profile_info(session, user)
+            creation_date = profile_info.get('creation_date', 'Desconocida')
+
+            message_text = (
+                f"<b>Información de la Cuenta</b>\n"
+                f"#️⃣ <b>Account ID</b>: {mask_account_id(user.account_id)}\n"
+                f"📧 <b>Email</b>: {account_info.get('email', 'Desconocido')}\n"
+                f"🧑 <b>Nombre en pantalla</b>: {user.display_name}\n"
+                f"🔐 <b>Email Verificado</b>: {bool_to_emoji(account_info.get('emailVerified', False))}\n"
+                f"👪 <b>Control Parental</b>: {bool_to_emoji(account_info.get('minorVerified', False))}\n"
+                f"🔒 <b>2FA</b>: {bool_to_emoji(account_info.get('tfaEnabled', False))}\n"
+                f"📛 <b>Nombre</b>: {account_info.get('name', 'Desconocido')}\n"
+                f"🌐 <b>País</b>: {account_info.get('country', 'Desconocido')} {country_to_flag(account_info.get('country', ''))}\n"
+                f"💰 <b>V-Bucks</b>: {vbucks_info.get('totalAmount', 0)}\n"
+                f"🏷 <b>Fecha de Creación</b>: {creation_date}\n"
+            )
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=message_text,
+                parse_mode="HTML"
+            )
+
+            connected_accounts_message = "<b>Cuentas Conectadas</b>\n"
+            external_auths = account_info.get('externalAuths', [])
+            if external_auths:
+                for auth in external_auths:
+                    auth_type = auth.get('type', 'Desconocido').upper()
+                    display_name = auth.get('externalDisplayName', 'Desconocido')
+                    date_added = auth.get('dateAdded', 'Desconocido')
+                    if date_added != 'Desconocido':
+                        parsed_date = datetime.strptime(date_added, "%Y-%m-%dT%H:%M:%S.%fZ")
+                        date_added = parsed_date.strftime("%d/%m/%Y")
+
+                    connected_accounts_message += (
+                        f"\n• <b>Tipo</b>: {auth_type}\n"
+                        f"  • <b>Display</b>: {display_name}\n"
+                        f"  • <b>Fecha</b>: {date_added}\n"
+                    )
+            else:
+                connected_accounts_message += "• No hay cuentas conectadas."
+
+            markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔗 Eliminar Restricciones", url='https://www.epicgames.com/help/en/wizards/w4')]
+            ])
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=connected_accounts_message,
+                reply_markup=markup,
+                parse_mode="HTML"
+            )
+
+            account_stats = await get_account_stats(session, user)
+            if "error" in account_stats:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=account_stats["error"], parse_mode="HTML")
+                return
+
+            additional_info_message = (
+                f"<b>Información Adicional (BR & ZB)</b>\n"
+                f"🆔 <b>Nivel de Cuenta</b>: {account_stats['account_level']}\n"
+                f"🏆 <b>Victorias Totales</b>: {account_stats['total_wins']}\n"
+                f"🎟 <b>Partidas Totales</b>: {account_stats['total_matches']}\n"
+                f"🕒 <b>Última partida jugada</b>: {account_stats['last_played_info']}\n"
+            )
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=additional_info_message,
+                parse_mode="HTML"
+            )
+
+            seasons_info_embeds = account_stats["seasons_info"]
+            if seasons_info_embeds:
+                seasons_info_message = "<b>Temporadas Pasadas (BR & ZB)</b>\n\n" + "\n\n".join(seasons_info_embeds)
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=seasons_info_message,
+                    parse_mode="HTML"
+                )
+            username = update.effective_user.username or update.effective_user.full_name     
+
+            locker_data = {'unlocked_styles': {}}
+            athena_data = profile
+            for item_id, item_data in athena_data['profileChanges'][0]['profile']['items'].items():
+                template_id = item_data.get('templateId', '')
+                if template_id.startswith('Athena'):
+                    lowercase_cosmetic_id = template_id.split(':')[1]
+                    if lowercase_cosmetic_id not in locker_data['unlocked_styles']:
+                        locker_data['unlocked_styles'][lowercase_cosmetic_id] = []
+                    attributes = item_data.get('attributes', {})
+                    variants = attributes.get('variants', [])
+                    for variant in variants:
+                        locker_data['unlocked_styles'][lowercase_cosmetic_id].extend(variant.get('owned', []))
+
+            exclusive_cosmetics = [
+                'CID_017_ATHENA_COMMANDO_M',
+                'CID_028_ATHENA_COMMANDO_F',
+                'CID_029_ATHENA_COMMANDO_F_HALLOWEEN',
+                'CID_030_ATHENA_COMMANDO_M_HALLOWEEN',
+                'CID_116_ATHENA_COMMANDO_M_CARBIDEBLACK',
+                'CID_315_ATHENA_COMMANDO_M_TERIYAKIFISH',
+            ]
+
+            items = {}
+            for it_data in profile['profileChanges'][0]['profile']['items'].values():
+                tid = it_data['templateId'].lower()
+                if "loadingscreen_character_lineup" in tid:
+                    continue
+                
+                if idpattern.match(tid):
+                    item_type = get_cosmetic_type(tid)
+                    if item_type not in items:
+                        items[item_type] = []
+                    items[item_type].append(tid.split(':')[1])
+
+            banner_ids = await download_and_prepare_banners(session, user)
+            if banner_ids:
+                items["Banners"] = banner_ids
+
+            order = ["Skins", "Mochilas", "Picos", "Gestos", "Planeadores", "Banners"]
+            username = update.effective_user.username or update.effective_user.full_name
+
+            for group in order:
+                if group in items:
+                    sorted_ids = await sort_ids_by_rarity(items[group], session, item_order=order)
+                    image_data = await createimg(
+                        sorted_ids,
+                        session,
+                        username=username,
+                        sort_by_rarity=True,
+                        item_order=order,
+                        locker_data=locker_data,
+                        exclusive_cosmetics=exclusive_cosmetics,
+                        telegram_user_id=update.effective_user.id
+                    )
+                    if image_data:
+                        await context.bot.send_photo(
+                            chat_id=update.effective_chat.id,
+                            photo=image_data,
+                            caption=f"<b>{group}</b>",
+                            parse_mode="HTML"
+                        )
+
+            mythic_items = filter_mythic_ids_func(items, converted_mythic_ids)
+            if mythic_items:
+                sorted_mythic_items = await sort_ids_by_rarity(mythic_items, session, item_order=order)
+                mythic_image_data = await createimg(
+                    sorted_mythic_items,
+                    session,
+                    "Cosas Míticas",
+                    username,
+                    sort_by_rarity=True,
+                    item_order=order,
+                    locker_data=locker_data,
+                    exclusive_cosmetics=exclusive_cosmetics,
+                    telegram_user_id=update.effective_user.id
+                )
+                if mythic_image_data:
+                    await context.bot.send_photo(
+                        chat_id=update.effective_chat.id,
+                        photo=mythic_image_data,
+                        caption="<b>Cosas Míticas</b>",
+                        parse_mode="HTML"
+                    )
+
+            combined_images = []
+            for group in order:
+                if group in items:
+                    combined_images.extend(items[group])
+
+            if combined_images:
+                sorted_all = await sort_ids_by_rarity(combined_images, session, item_order=order)
+                combined_image_data = await createimg(
+                    sorted_all,
+                    session,
+                    "Todos los Cosméticos",
+                    username,
+                    sort_by_rarity=False,
+                    item_order=order,
+                    locker_data=locker_data,
+                    exclusive_cosmetics=exclusive_cosmetics,
+                    telegram_user_id=update.effective_user.id
+                )
+                if combined_image_data:
+                    await context.bot.send_photo(
+                        chat_id=update.effective_chat.id,
+                        photo=combined_image_data,
+                        caption="<b>Todos los Cosméticos</b>",
+                        parse_mode="HTML"
+                    )            
+
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="🙏 Muchas gracias por verificar tu cuenta, ¡espero verte pronto! 😊",
+                parse_mode="HTML"
+            )
+
+    except Exception as e:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"⚠️ Error: {e}",
+            parse_mode="HTML"
+        )
+        logger.error(f"Error en login_task: {e}")
+    finally:
+        await send_start_menu(update, context)
+
+
+def configure_webhook():
+    global webhook_url
+    while True:
+        use_webhook = input("¿Quieres usar webhook para notificaciones? (sí/no): ").strip().lower()
+        if use_webhook in ['sí', 'si', 's']:
+            webhook_url_input = input("Introduce la URL del webhook de Discord: ").strip()
+            if re.match(r'^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$', webhook_url_input):
+                webhook_url = webhook_url_input
+                logger.info(f"Webhook configurado: {webhook_url}")
+                break
+            else:
+                print("URL de webhook inválida. Intenta nuevamente.")
+        elif use_webhook in ['no', 'n']:
+            webhook_url = None
+            logger.info("Webhook no será utilizado.")
+            break
+        else:
+            print("Respuesta no reconocida. Responde 'sí' o 'no'.")
+
+
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
+    TOKEN = "7439391891:AAHH6B5L-za-JrxPnnpq9fLxpBekNjfBbBw"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
@@ -1852,7 +1895,7 @@ if __name__ == "__main__":
     launch_handler = CommandHandler('launch', launch)
     cambiar_logo_handler = CommandHandler('cambiar_logo', cambiar_logo_command)
     eliminar_amigos_handler = CommandHandler('eliminar_amigos', eliminar_amigos)
-    cambiar_handler = CommandHandler('cambiar', cambiar)
+    cambiar_handler = CommandHandler('cambiar_version', cambiar)
     cambiar_callback_handler = CallbackQueryHandler(cambiar_callback, pattern="^rarity_v")
     cambiar_link_handler = CommandHandler('cambiar_link', cambiar_link_command)
     resetear_handler = CommandHandler('resetear', resetear_command)
@@ -1876,5 +1919,5 @@ if __name__ == "__main__":
     general_text_handler_instance = MessageHandler(filters.TEXT & ~filters.COMMAND, general_text_handler_func)
     application.add_handler(general_text_handler_instance)
 
-    print("Bot de Telegram iniciado")
+    print("Bot de Telegram iniciado. Escuchando...")
     application.run_polling()
