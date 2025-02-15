@@ -192,6 +192,101 @@ rarity_backgroundsV2 = {
     "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
 }
 
+rarity_backgroundsV3 = {
+    "Common": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "commun.png"),
+    "Uncommon": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "uncommun.png"),
+    "Rare": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "rare.png"),
+    "Epic": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "epico.png"),
+    "Legendary": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "legendary.png"),
+    "Mythic": os.path.join(current_dir, "Cuadrados", "CuadradosV3", "mitico.png"),
+    "Icon Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "idolo.png"),
+    "DARK SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dark.png"),
+    "Star Wars Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "starwars.png"),
+    "MARVEL SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "marvel.png"),
+    "DC SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dc.png"),
+    "Gaming Legends Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "serie.png"),
+    "Shadow Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "shadow.png"),
+    "Slurp Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "slurp.png"),
+    "Lava Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "lava.png"),
+    "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
+}
+
+rarity_backgroundsV4 = {
+    "Common": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "commun.png"),
+    "Uncommon": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "uncommun.png"),
+    "Rare": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "rare.png"),
+    "Epic": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "epico.png"),
+    "Legendary": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "legendary.png"),
+    "Mythic": os.path.join(current_dir, "Cuadrados", "CuadradosV4", "mitico.png"),
+    "Icon Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "idolo.png"),
+    "DARK SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dark.png"),
+    "Star Wars Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "starwars.png"),
+    "MARVEL SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "marvel.png"),
+    "DC SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dc.png"),
+    "Gaming Legends Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "serie.png"),
+    "Shadow Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "shadow.png"),
+    "Slurp Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "slurp.png"),
+    "Lava Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "lava.png"),
+    "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
+}
+
+rarity_backgroundsV5 = {
+    "Common": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "commun.png"),
+    "Uncommon": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "uncommun.png"),
+    "Rare": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "rare.png"),
+    "Epic": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "epico.png"),
+    "Legendary": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "legendary.png"),
+    "Mythic": os.path.join(current_dir, "Cuadrados", "CuadradosV5", "mitico.png"),
+    "Icon Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "idolo.png"),
+    "DARK SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dark.png"),
+    "Star Wars Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "starwars.png"),
+    "MARVEL SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "marvel.png"),
+    "DC SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dc.png"),
+    "Gaming Legends Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "serie.png"),
+    "Shadow Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "shadow.png"),
+    "Slurp Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "slurp.png"),
+    "Lava Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "lava.png"),
+    "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
+}
+
+rarity_backgroundsV6 = {
+    "Common": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "commun.png"),
+    "Uncommon": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "uncommun.png"),
+    "Rare": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "rare.png"),
+    "Epic": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "epico.png"),
+    "Legendary": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "legendary.png"),
+    "Mythic": os.path.join(current_dir, "Cuadrados", "CuadradosV6", "mitico.png"),
+    "Icon Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "idolo.png"),
+    "DARK SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dark.png"),
+    "Star Wars Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "starwars.png"),
+    "MARVEL SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "marvel.png"),
+    "DC SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dc.png"),
+    "Gaming Legends Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "serie.png"),
+    "Shadow Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "shadow.png"),
+    "Slurp Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "slurp.png"),
+    "Lava Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "lava.png"),
+    "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
+}
+
+rarity_backgroundsV7 = {
+    "Common": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "commun.png"),
+    "Uncommon": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "uncommun.png"),
+    "Rare": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "rare.png"),
+    "Epic": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "epico.png"),
+    "Legendary": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "legendary.png"),
+    "Mythic": os.path.join(current_dir, "Cuadrados", "CuadradosV7", "mitico.png"),
+    "Icon Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "idolo.png"),
+    "DARK SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dark.png"),
+    "Star Wars Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "starwars.png"),
+    "MARVEL SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "marvel.png"),
+    "DC SERIES": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "dc.png"),
+    "Gaming Legends Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "serie.png"),
+    "Shadow Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "shadow.png"),
+    "Slurp Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "slurp.png"),
+    "Lava Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "lava.png"),
+    "Frozen Series": os.path.join(current_dir, "Cuadrados", "CuadradosV2", "hielo.png")
+}
+
 rarity_priority = {
     "Mythic": 1,
     "Legendary": 2,
@@ -980,46 +1075,91 @@ async def send_start_menu(update: Update, context: CallbackContext):
         disable_web_page_preview=True
     )
 
+image_paths = [
+    ("V1", os.path.join(current_dir, "Cuadrados", "Fondos", "V1.jpg")),
+    ("V2", os.path.join(current_dir, "Cuadrados", "Fondos", "V2.jpg")),
+    ("V3", os.path.join(current_dir, "Cuadrados", "Fondos", "V3.jpg")),
+    ("V4", os.path.join(current_dir, "Cuadrados", "Fondos", "V4.jpg")),
+    ("V5", os.path.join(current_dir, "Cuadrados", "Fondos", "V5.jpg")),
+    ("V6", os.path.join(current_dir, "Cuadrados", "Fondos", "V6.jpg")),
+    ("V7", os.path.join(current_dir, "Cuadrados", "Fondos", "V7.jpg"))
+]
+
+current_version_index = {}
 
 async def cambiar(update: Update, context: CallbackContext):
-    V1_IMAGE_PATH = os.path.join(current_dir, "Cuadrados", "Fondos", "V1.jpg")
-    V2_IMAGE_PATH = os.path.join(current_dir, "Cuadrados", "Fondos", "V2.jpg")
-    media = []
+    user_id = update.effective_user.id
+    current_version_index[user_id] = 0
+
+    version, path = image_paths[current_version_index[user_id]]
 
     try:
-        with open(V1_IMAGE_PATH, 'rb') as photo1:
-            media.append(InputMediaPhoto(media=photo1, caption="Versión 1"))
-        with open(V2_IMAGE_PATH, 'rb') as photo2:
-            media.append(InputMediaPhoto(media=photo2, caption="Versión 2"))
-
-        await context.bot.send_media_group(
-            chat_id=update.effective_chat.id,
-            media=media
-        )
-    except FileNotFoundError as e:
-        logger.error(f"Error al enviar las imágenes: {e}")
+        with open(path, 'rb') as photo:
+            await context.bot.send_photo(
+                chat_id=update.effective_chat.id,
+                photo=photo,
+                caption=f"Vista previa: {version}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("⬅️ Anterior", callback_data=f"prev_version_{user_id}"),
+                     InlineKeyboardButton("➡️ Siguiente", callback_data=f"next_version_{user_id}")],
+                    [InlineKeyboardButton("✅ Aplicar", callback_data=f"apply_{version.lower()}_{user_id}")]
+                ])
+            )
+    except FileNotFoundError:
+        logger.warning(f"No se encontró la imagen {path}")
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ No se pudieron cargar las imágenes de versiones. Revisa rutas.",
+            text=f"⚠️ No se encontró la imagen de la versión {version}.",
             parse_mode="HTML"
         )
-        return
 
-    keyboard = [
-        [
-            InlineKeyboardButton("Usar Versión 1", callback_data="rarity_v1"),
-            InlineKeyboardButton("Usar Versión 2", callback_data="rarity_v2")
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+async def cambiar_callback(update: Update, context: CallbackContext):
+    query = update.callback_query
+    user_id = query.from_user.id
+    await query.answer()
 
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Elige la versión de fondos que prefieras:",
-        reply_markup=reply_markup,
-        parse_mode="HTML"
-    )
+    if user_id not in current_version_index:
+        current_version_index[user_id] = 0
 
+    data = query.data
+
+    if data.startswith("next_version_"):
+        current_version_index[user_id] = (current_version_index[user_id] + 1) % len(image_paths)
+
+    elif data.startswith("prev_version_"):
+        current_version_index[user_id] = (current_version_index[user_id] - 1) % len(image_paths)
+
+    elif data.startswith("apply_"):
+        chosen_version = data.split("_")[1]
+
+        config = load_user_config(user_id)
+        config["rarity_version"] = chosen_version
+        save_user_config(user_id, config)
+
+        await query.edit_message_caption(
+            caption=f"✅ Has seleccionado la <b>Versión {chosen_version.upper()}</b>.\n"
+                    f"Las próximas imágenes usarán esta versión.",
+            parse_mode="HTML",
+            reply_markup=None
+        )
+
+        await send_start_menu(update, context)
+        return 
+    version, path = image_paths[current_version_index[user_id]]
+
+    try:
+        with open(path, 'rb') as photo:
+            await query.edit_message_media(
+                media=InputMediaPhoto(media=photo, caption=f"Vista previa: {version}"),
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("⬅️ Anterior", callback_data=f"prev_version_{user_id}"),
+                     InlineKeyboardButton("➡️ Siguiente", callback_data=f"next_version_{user_id}")],
+                    [InlineKeyboardButton("✅ Aplicar", callback_data=f"apply_{version.lower()}_{user_id}")]
+                ])
+            )
+    except Exception as e:
+        logger.error(f"Error cambiando imagen: {e}")
+        await query.message.reply_text("⚠️ Ocurrió un error al cambiar de imagen.")
 
 async def cambiar_logo_command(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -1034,31 +1174,6 @@ async def cambiar_logo_command(update: Update, context: CallbackContext):
             chat_id=update.effective_chat.id,
             text="Por favor, envía la imagen que quieres usar como logo."
         )
-
-
-async def cambiar_callback(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-
-    chosen_data = query.data
-    if chosen_data == "rarity_v1":
-        chosen_version = "v1"
-    else:
-        chosen_version = "v2"
-
-    user_id = query.from_user.id
-    config = load_user_config(user_id)
-    config["rarity_version"] = chosen_version
-    save_user_config(user_id, config)
-
-    await query.edit_message_text(
-        text=f"Has seleccionado <b>Versión {chosen_version.upper()}</b>.\n"
-             f"Las próximas imágenes usarán esa versión.",
-        parse_mode="HTML"
-    )
-
-    await send_start_menu(update, context)
-
 
 def _process_cosmetic_item(args):
     cid = args["cid"]
@@ -1114,7 +1229,17 @@ async def createimg(
     rarity_version = user_config.get("rarity_version", "v2")
     custom_link = user_config.get("custom_link", "Discord.gg/KayyShop")
 
-    backgrounds_to_use = rarity_backgroundsV1 if rarity_version == "v1" else rarity_backgroundsV2
+    rarity_versions_map = {
+        "v1": rarity_backgroundsV1,
+        "v2": rarity_backgroundsV2,
+        "v3": rarity_backgroundsV3,
+        "v4": rarity_backgroundsV4,
+        "v5": rarity_backgroundsV5,
+        "v6": rarity_backgroundsV6,
+        "v7": rarity_backgroundsV7,
+    }
+
+    backgrounds_to_use = rarity_versions_map.get(rarity_version, rarity_backgroundsV1)
 
     user_dir = os.path.join(USER_CONFIG_FOLDER, str(telegram_user_id))
     logo_path = os.path.join(user_dir, "logo.png")
@@ -1849,7 +1974,7 @@ async def login_task(update: Update, context: CallbackContext):
 
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="🙏 Muchas gracias por verificar tu cuenta, ¡espero verte pronto! 😊",
+                text="¡Gracias por verificar tu cuenta! 🙏",
                 parse_mode="HTML"
             )
 
@@ -1886,7 +2011,7 @@ def configure_webhook():
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
+    TOKEN = "EL TOKEN DE TU BOT"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
@@ -1898,6 +2023,7 @@ if __name__ == "__main__":
     cambiar_handler = CommandHandler('cambiar_version', cambiar)
     cambiar_callback_handler = CallbackQueryHandler(cambiar_callback, pattern="^rarity_v")
     cambiar_link_handler = CommandHandler('cambiar_link', cambiar_link_command)
+    cambiar_callback_handler = CallbackQueryHandler(cambiar_callback, pattern="^(next_version_|prev_version_|apply_)")
     resetear_handler = CommandHandler('resetear', resetear_command)
     button_handler_registrar = CallbackQueryHandler(button_handler, pattern='^cmd_')
 
@@ -1911,6 +2037,7 @@ if __name__ == "__main__":
     application.add_handler(login_handler)
     application.add_handler(launch_handler)
     application.add_handler(help_handler)
+    application.add_handler(cambiar_callback_handler)
     application.add_handler(button_handler_registrar)
 
     logo_upload_handler = MessageHandler(filters.PHOTO, handle_logo_upload)
