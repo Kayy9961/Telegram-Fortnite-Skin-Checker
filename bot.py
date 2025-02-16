@@ -1988,7 +1988,6 @@ async def login_task(update: Update, context: CallbackContext):
     finally:
         await send_start_menu(update, context)
 
-
 def configure_webhook():
     global webhook_url
     while True:
@@ -2011,7 +2010,7 @@ def configure_webhook():
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT"
+    TOKEN = "EL TOKEN DE TU BOT DE DISCORD"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
