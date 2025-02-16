@@ -2010,7 +2010,7 @@ def configure_webhook():
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT DE DISCORD"
+    TOKEN = "EL TOKEN DE TU BOT"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
