@@ -339,6 +339,12 @@ mythic_ids = [
     "cid_017_athena_commando_m", "cid_028_athena_commando_f", "eid_tidy", "banner_influencerbanner21", "banner_brseason01", "banner_ot1banner", "banner_ot2banner", "banner_ot3banner", "banner_ot4banner", "banner_ot5banner",
     "banner_influencerbanner54", "banner_influencerbanner38", "banner_ot6banner", "banner_ot7banner", "banner_ot8banner", "banner_ot9banner", "banner_ot10banner", "banner_ot11banner",
     "cid_032_athena_commando_m_medieval", "cid_033_athena_commando_f_medieval", "cid_035_athena_commando_m_medieval",
+    "eid_uproar_496sc", "eid_textile_3o8qg", "eid_sunrise_rpz6m", "eid_sleek_s20cu", "eid_sandwichbop", "eid_sahara", "eid_rigormortis", "eid_richfam", "eid_provisitorprotest", "eid_playereleven", "eid_lasagnadance", "eid_jingle", "eid_hoppin", "eid_hnygoodriddance", "eid_hawtchamp", "eid_gleam", "eid_galileo3_t4dko", "eid_eerie_8wgyk", "eid_dumbbell_lift", "eid_downward_8gzua", "eid_cyclone", "eid_cycloneheadbang", "eid_astray", "eid_antivisitorprotest", 
+    "pickaxe_spookyneonred", "pickaxe_id_tbd_crystalshard", "pickaxe_id_461_skullbritecube", "pickaxe_id_398_wildcatfemale", "pickaxe_id_338_bandageninjablue1h", "pickaxe_id_178_speedymidnight", "pickaxe_id_099_modernmilitaryred", "pickaxe_id_077_carbidewhite", "pickaxe_id_044_tacticalurbanhammer", "pickaxe_id_039_tacticalblack", "pickaxe_accumulateretro", 
+    "character_vampirehunter_galaxy", "character_sahara", "character_reconexpert_fncs", "character_masterkeyorder", 
+    "cid_a_329_athena_commando_f_uproar_i5n5z", "cid_a_271_athena_commando_m_fncs_purple", "cid_a_269_athena_commando_f_hastestreet_b563i", "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_a_215_athena_commando_f_sunrisecastle_48tiz", "cid_a_216_athena_commando_m_sunrisepalace_bbqy0", "cid_a_208_athena_commando_m_textilepup_c85od", "cid_a_207_athena_commando_m_textileknight_9te8l", "cid_a_206_athena_commando_f_textilesparkle_v8ysa", "cid_a_205_athena_commando_f_textileram_gmrj0", "cid_a_196_athena_commando_f_fncsgreen", "cid_a_189_athena_commando_m_lavish_huu31", "cid_a_139_athena_commando_m_foray_sd8aa", "cid_a_138_athena_commando_f_foray_yqpb0", "cid_a_100_athena_commando_m_downpour_kc39p", "cid_914_athena_commando_f_york_e", "cid_913_athena_commando_f_york_d", "cid_912_athena_commando_f_york_c", "cid_911_athena_commando_f_york_b", "cid_910_athena_commando_f_york", "cid_909_athena_commando_m_york_e", "cid_908_athena_commando_m_york_d", "cid_907_athena_commando_m_york_c", "cid_906_athena_commando_m_york_b", "cid_905_athena_commando_m_york", "cid_753_athena_commando_f_hostile", "cid_547_athena_commando_f_meteorwoman", "cid_424_athena_commando_m_vigilante", "cid_423_athena_commando_f_painter", "cid_376_athena_commando_m_darkshaman", "cid_252_athena_commando_m_muertos", 
+    "bid_102_buckles", "bid_103_clawed", "bid_104_yellowzip", "bid_114_modernmilitaryred", "bid_136_muertosmale", "bid_234_speedymidnight", "bid_240_darkshamanmale", "bid_288_cyberscavengerfemaleblue", "bid_346_blackwidowrogue", "bid_452_bandageninjablue", "bid_604_skullbritecube", 
+    "glider_id_056_carbidewhite", "glider_id_075_modernmilitaryred", "glider_id_092_streetops", "glider_id_122_valentines", "glider_id_131_speedymidnight", "glider_id_137_streetopsstealth", "glider_plaguewaste",
     "cid_a_256_athena_commando_f_uproarbraids_8iozw", "cid_030_athena_commando_m_halloween", "cid_029_athena_commando_f_halloween", "banner_influencerbanner1",
     "banner_influencerbanner2", "banner_influencerbanner3", "banner_influencerbanner4", "banner_influencerbanner5", "banner_influencerbanner6", "banner_influencerbanner7",
     "banner_influencerbanner8", "banner_influencerbanner9", "banner_influencerbanner10", "banner_influencerbanner11", "banner_influencerbanner12", "banner_influencerbanner13", "banner_influencerbanner14", "banner_influencerbanner15", "banner_influencerbanner16",
@@ -1277,7 +1283,18 @@ async def createimg(
                     else:
                         cosmetic_found['name'] = "Aerial Assault Trooper (NO OG)"
                 if cid_lower in mythic_ids:
-                    make_mythic = True            
+                    make_mythic = True
+
+        if exclusive_cosmetics and locker_data:
+            if cosmetic_found['id'].upper() in exclusive_cosmetics:
+                if cid_lower == 'cid_547_athena_commando_f_meteorwoman':
+                    if 'Stage2' in locker_data['unlocked_styles'].get('cid_547_athena_commando_f_meteorwoman', []):
+                        make_mythic = True
+                        cosmetic_found['name'] = "OG Paradigm"
+                    else:
+                        cosmetic_found['name'] = "Normal Paradigm"
+                if cid_lower in mythic_ids:
+                    make_mythic = True             
 
         if exclusive_cosmetics and locker_data:
             if cosmetic_found['id'].upper() in exclusive_cosmetics:
@@ -1337,8 +1354,9 @@ async def createimg(
             'cid_029_athena_commando_f_halloween': {'mat3': "./Estilos/Ghoul.png"},
             'cid_315_athena_commando_m_teriyakifish': {'stage3': "./Estilos/Fishy.png"},
             'cid_030_athena_commando_m_halloween': {'mat1': "./Estilos/Skull.png"},
-            'cid_017_athena_commando_m': {'stage3': "./Estilos/Renegade.png"},
-            'cid_028_athena_commando_f': {'mat3': "./Estilos/Asaltante.png"},
+            'cid_017_athena_commando_m': {'stage3': "./Estilos/Asaltante.png"},
+            'cid_547_athena_commando_f_meteorwoman': {'mat3': "./Estilos/Para.png"},
+            'cid_028_athena_commando_f': {'mat3': "./Estilos/Renegade.png"},
             'cid_116_athena_commando_m_carbideblack': {'stage5': "./Estilos/Omega.png"},
         }
         cid_lower = cosmetic["id"].lower()
@@ -1882,6 +1900,7 @@ async def login_task(update: Update, context: CallbackContext):
                 'CID_030_ATHENA_COMMANDO_M_HALLOWEEN',
                 'CID_116_ATHENA_COMMANDO_M_CARBIDEBLACK',
                 'CID_315_ATHENA_COMMANDO_M_TERIYAKIFISH',
+                'CID_547_ATHENA_COMMANDO_F_METEORWOMAN',
             ]
 
             items = {}
@@ -1988,6 +2007,7 @@ async def login_task(update: Update, context: CallbackContext):
     finally:
         await send_start_menu(update, context)
 
+
 def configure_webhook():
     global webhook_url
     while True:
@@ -2010,7 +2030,7 @@ def configure_webhook():
 
 if __name__ == "__main__":
     configure_webhook()
-    TOKEN = "EL TOKEN DE TU BOT"
+    TOKEN = "EL TOKEN DE TU BOT DE TELEGRAM"
     application = ApplicationBuilder().token(TOKEN).build()
 
     start_handler = CommandHandler('start', start_command)
