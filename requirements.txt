@@ -1,0 +1,4 @@
+Pillow
+aiohttp
+asyncio
+python-telegram-bot
