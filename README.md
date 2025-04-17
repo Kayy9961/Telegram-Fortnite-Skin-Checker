@@ -6,8 +6,6 @@ A Fortnite Skin Checker for Telegram written in Python.
 [![Static Badge](https://img.shields.io/badge/Spanish%F0%9F%87%AA%F0%9F%87%B8-grey?style=flat-square)](/README_ES.md)
 
 ![Python Logo](https://img.shields.io/badge/Language-Python-blue?logo=python&logoColor=white&style=flat)
-![GitHub Repo stars](https://img.shields.io/github/stars/Kayy9961/Telegram-Fortnite-Skin-Checker-Source-Code?style=flat)
-![GitHub forks](https://img.shields.io/github/forks/Kayy9961/Telegram-Fortnite-Skin-Checker-Source-Code?style=flat)
 
 ![photo_2025-02-21_01-26-49](https://github.com/user-attachments/assets/0b5bc1ef-19fd-41d0-8906-42b67b94b463)
 
